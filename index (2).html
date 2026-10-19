@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Suivi des dossiers comptables</title>
+<style>
+:root{--ink:#172033;--ink2:#3a4458;--mut:#6b7488;--bg:#f2f4f8;--card:#fff;--line:#e4e8f0;--line2:#c9d0de;--acc:#3454d1;--acc2:#2742b0;--soft:#eaeefc;--ok:#1f8a5b;--warn:#c77700;--bad:#c93232;--chip:#f1f3f8;--chipink:#4a5469;--okbg:#e3f4ec;--warnbg:#fdf0d9;--hover:#fafbfd;--r:14px;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--ink:#e6e9f2;--ink2:#c3c9d8;--mut:#98a1b5;--bg:#0f1420;--card:#181f2e;--line:#2a3347;--line2:#3a4560;--acc:#5b78f0;--acc2:#7a93f5;--soft:#222d57;--ok:#4cc38a;--warn:#f0a63a;--bad:#ff7a70;--chip:#232c40;--chipink:#b4bccd;--okbg:#17352a;--warnbg:#3a2d14;--hover:#1c2436;color-scheme:dark}}
+:root[data-theme="dark"]{--ink:#e6e9f2;--ink2:#c3c9d8;--mut:#98a1b5;--bg:#0f1420;--card:#181f2e;--line:#2a3347;--line2:#3a4560;--acc:#5b78f0;--acc2:#7a93f5;--soft:#222d57;--ok:#4cc38a;--warn:#f0a63a;--bad:#ff7a70;--chip:#232c40;--chipink:#b4bccd;--okbg:#17352a;--warnbg:#3a2d14;--hover:#1c2436;color-scheme:dark}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;font:14.5px/1.5 "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:color-mix(in srgb,var(--card) 92%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding:12px 28px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px;letter-spacing:-.01em}
+.logo{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#3454d1,#6d83ee);display:grid;place-items:center;color:#fff;font-size:15px}
+nav{display:flex;gap:4px;background:var(--bg);padding:4px;border-radius:12px}
+nav button{border:0;background:none;padding:7px 16px;border-radius:9px;color:var(--mut);cursor:pointer;font-weight:600;transition:.18s}
+nav button:hover{color:var(--ink)}
+nav button.on{background:var(--card);color:var(--acc);box-shadow:0 1px 3px rgba(16,24,40,.12)}
+#badge{background:var(--bad);color:#fff;border-radius:10px;padding:1px 7px;font-size:12px;margin-left:5px}
+#badge:empty{display:none}
+.tools{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:var(--card);padding:8px 14px;border-radius:10px;cursor:pointer;font-weight:600;transition:.18s}
+.btn:hover{border-color:var(--line2);transform:translateY(-1px);box-shadow:0 3px 10px rgba(16,24,40,.08)}
+.btn.pri{background:var(--acc);border-color:var(--acc);color:#fff}
+.btn.pri:hover{background:var(--acc2);border-color:var(--acc2)}
+.btn.del{color:var(--bad)}
+.btn.sm{padding:5px 11px;font-size:13px}
+main{max-width:1280px;margin:0 auto;padding:26px 28px 60px}
+main.in{animation:in .3s ease}
+@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:22px}
+.stat{background:var(--card);border-radius:var(--r);padding:16px 18px;box-shadow:0 1px 2px rgba(16,24,40,.05)}
+.stat b{display:block;font-size:28px;letter-spacing:-.02em;line-height:1.1}
+.stat span{color:var(--mut);font-size:13px}
+.bar{display:flex;gap:10px;align-items:center;margin-bottom:20px;flex-wrap:wrap}
+.bar .sp{flex:1}
+.bar label{color:var(--mut);font-weight:600;font-size:13px}
+.filt{margin-top:-8px}.filt select{max-width:230px;padding:8px 10px}
+.in-s,select.in-s{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:9px 12px;outline:0;transition:.18s}
+.in-s:focus{border-color:var(--acc);box-shadow:0 0 0 3px var(--soft)}
+#q{min-width:360px}
+dialog select[size]{padding:4px}
+.sync{font-size:12.5px;color:var(--mut);font-weight:600}.sync.on{color:var(--ok)}
+.ck{width:19px;height:19px;accent-color:var(--ok);cursor:pointer}
+tr.done td{color:var(--mut);text-decoration:line-through}tr.done td:first-child,tr.done td:nth-child(3){text-decoration:none}
+h2.grp{font-size:13px;text-transform:none;color:var(--mut);font-weight:700;margin:26px 0 10px;display:flex;align-items:center;gap:8px}
+h2.grp i{font-style:normal;background:var(--soft);color:var(--acc);border-radius:10px;padding:0 8px;font-size:12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px}
+.card{background:var(--card);border-radius:var(--r);padding:18px;box-shadow:0 1px 2px rgba(16,24,40,.05);display:flex;flex-direction:column;gap:12px;transition:.2s}
+.card:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(16,24,40,.1)}
+.top{display:flex;gap:12px;align-items:flex-start}
+.num{background:var(--soft);color:var(--acc);font-weight:700;border-radius:10px;padding:5px 10px;font-size:13px;white-space:nowrap}
+.top h3{margin:0;font-size:16px;line-height:1.25}
+.top p{margin:2px 0 0;color:var(--mut);font-size:13px}
+.top .mo{margin-left:auto;font-size:12px;color:var(--mut);font-weight:600;white-space:nowrap;padding-top:6px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{background:var(--chip);border-radius:8px;padding:3px 9px;font-size:12.5px;font-weight:600;color:var(--chipink)}.chip.col{background:var(--soft);color:var(--acc)}
+.chip.tva{background:var(--okbg);color:var(--ok)}.chip.soc{background:var(--warnbg);color:var(--warn)}.chip.no{background:var(--chip);color:var(--mut)}
+.meta{display:grid;gap:3px;font-size:13px;color:var(--mut)}
+.meta a{color:var(--acc);text-decoration:none}.meta a:hover{text-decoration:underline}
+.foot{display:flex;gap:8px;margin-top:auto;padding-top:4px}
+.panel{background:var(--card);border-radius:var(--r);box-shadow:0 1px 2px rgba(16,24,40,.05);overflow-x:auto}
+table{border-collapse:collapse;width:100%}
+th{text-align:left;font-size:12.5px;color:var(--mut);font-weight:700;padding:13px 16px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:13px 16px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+tbody tr{transition:background .15s}tbody tr:hover{background:var(--hover)}
+td.note{white-space:pre-wrap;min-width:260px;color:var(--ink2)}
+td.act{white-space:nowrap}
+.sel{border:0;border-radius:8px;padding:5px 8px;font-weight:600;cursor:pointer}
+.s0{background:var(--chip)}.s1{background:var(--warnbg);color:var(--warn)}.s2{background:var(--okbg);color:var(--ok)}
+.late{color:var(--bad);font-weight:700}.soon{color:var(--warn);font-weight:700}.far{color:var(--mut);font-weight:600}
+.empty{text-align:center;color:var(--mut);padding:60px 10px}
+.hint{color:var(--mut);font-size:12.5px;margin-top:14px}
+dialog{border:0;border-radius:18px;padding:0;width:min(580px,94vw);box-shadow:0 24px 70px rgba(16,24,40,.3);color:var(--ink);background:var(--card)}
+dialog[open]{animation:pop .22s ease}
+dialog::backdrop{background:rgba(23,32,51,.45);backdrop-filter:blur(2px)}
+@keyframes pop{from{opacity:0;transform:translateY(10px) scale(.97)}to{opacity:1;transform:none}}
+dialog form{padding:24px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+dialog h2{margin:0;font-size:19px;grid-column:1/-1}
+dialog label{display:grid;gap:5px;color:var(--mut);font-size:12.5px;font-weight:700}
+dialog label.full,.full{grid-column:1/-1}
+dialog label input,dialog label select,dialog label textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:9px 11px;outline:0;background:var(--card);color:var(--ink);font-weight:400;font-size:14.5px;transition:.18s}
+dialog label input:focus,dialog label select:focus,dialog label textarea:focus{border-color:var(--acc);box-shadow:0 0 0 3px var(--soft)}
+dialog label.chk{display:flex;align-items:center;gap:9px;color:var(--ink);font-size:14.5px;font-weight:600;padding:9px 0;cursor:pointer}
+dialog label.chk input{width:18px;height:18px;accent-color:var(--acc)}
+.err{color:var(--bad);margin:0;min-height:1.2em;grid-column:1/-1;font-size:13px}
+.btns{display:flex;justify-content:flex-end;gap:8px;grid-column:1/-1}
+.xl{grid-column:1/-1;display:grid;gap:10px}
+.xl .btn{text-align:left;padding:13px 16px}
+#toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);background:var(--ink);color:var(--bg);padding:11px 20px;border-radius:12px;opacity:0;pointer-events:none;transition:.3s;z-index:20}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+@media(max-width:640px){main,header{padding-left:14px;padding-right:14px}dialog form{grid-template-columns:1fr}#q{min-width:0;width:100%}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><div class="logo">€</div>Dossiers comptables</div>
+  <nav>
+    <button data-t="dos">Dossiers</button>
+    <button data-t="sui">Suivi mensuel</button>
+    <button data-t="rap">Rappels<span id="badge"></span></button>
+  </nav>
+  <span id="sync" class="sync"></span>
+  <div class="tools">
+    <button class="btn" data-x="menu">Envoyer vers Excel</button>
+    <button class="btn" id="exp">Exporter la sauvegarde</button>
+    <button class="btn" id="imp">Importer une sauvegarde</button>
+  </div>
+</header>
+<main id="main"></main>
+<dialog id="dlg"></dialog>
+<div id="toast"></div>
+
+<script>
+const API = "COLLER_ICI_L_URL_DE_VOTRE_APPLICATION_WEB", POLL = 4000; // URL « …/exec » fournie par Apps Script
+const STATUTS = ["À faire", "En cours", "Fait"];
+const RUBRIQUES = ["Réception des pièces", "Saisie comptable", "Rapprochement bancaire", "TVA", "Social", "Révision / bilan", "Relance client", "Autre"];
+const LOGICIELS = ["Sage", "Ciel", "Quadra", "EBP", "Cegid", "Pennylane", "Tiime", "QuickBooks", "Excel"];
+const DEPOTS = ["Email", "Portail client", "Plateforme du logiciel", "Clé USB", "Courrier", "Autre"];
+const PERIODES = ["Mensuelle", "Trimestrielle", "Annuelle"];
+const MOIS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
+
+let D = { dossiers: [], suivi: [], rappels: [], faits: {} };
+let DBX = false, readOnly = false, saving = false, ready = false, paused = false, ver = "";
+let code = localStorage.getItem("compta_code") || "";
+const COLS = ["dossiers", "suivi", "rappels"], synced = { dossiers: {}, suivi: {}, rappels: {}, faits: {} };
+const fid = k => String(k).replace(/\|/g, "_");
+const migrer = () => { let ch = false; D.faits = D.faits || {}; D.dossiers.forEach(d => { if (!d.cree) { d.cree = iso(new Date()); ch = true; } }); if (ch) save(); };
+const save = () => persist().then(pull);
+
+function setSync(ok) { DBX = ok; const s = $("#sync"); if (s) { s.textContent = ok ? "● Partagé, mise à jour en direct" : "○ Hors ligne, nouvelle tentative…"; s.className = "sync" + (ok ? " on" : ""); } }
+async function api(body) {
+  if (!API.startsWith("http")) throw "config";
+  if (!code) { code = (prompt("Code d'accès de l'équipe :") || "").trim(); if (!code) { paused = true; throw "code"; } localStorage.setItem("compta_code", code); }
+  const j = await (await fetch(API, { method: "POST", body: JSON.stringify({ ...body, code }) })).json();
+  if (j.err) { if (j.err == "code") { code = ""; localStorage.removeItem("compta_code"); } throw j.err; }
+  return j;
+}
+function diff() {
+  const ops = [];
+  COLS.forEach(col => {
+    const cur = new Map(D[col].map(r => [String(r.id), r]));
+    cur.forEach((r, id) => { const js = JSON.stringify(r); if (synced[col][id] !== js) ops.push([col, id, js]); });
+    Object.keys(synced[col]).forEach(id => { if (!cur.has(id)) ops.push([col, id, null]); });
+  });
+  const want = new Map(Object.keys(D.faits).map(k => [fid(k), k]));
+  want.forEach((k, id) => { if (!synced.faits[id]) ops.push(["faits", id, JSON.stringify({ k })]); });
+  Object.keys(synced.faits).forEach(id => { if (!want.has(id)) ops.push(["faits", id, null]); });
+  return ops;
+}
+async function persist() {
+  if (!ready || saving) return;
+  saving = true;
+  try {
+    let ops;
+    while ((ops = diff()).length) {
+      await api({ a: "sync", ops });
+      ops.forEach(([c, id, js]) => { if (js === null) delete synced[c][id]; else synced[c][id] = c == "faits" ? 1 : js; });
+      setSync(true);
+    }
+  } catch (e) { fail(e); } finally { saving = false; }
+}
+function fail(e) {
+  if (e == "config") { if (!ready) $("#main").innerHTML = "<p class=empty>Configuration manquante : colle l'URL de ton application web Apps Script dans la constante API de index.html.</p>"; return; }
+  if (e == "code") { toast("Code d'accès incorrect ou absent. Recharge la page pour le ressaisir."); paused = true; return; }
+  setSync(false);
+}
+async function pull() {
+  if (paused || saving) return;
+  try {
+    const j = await api({ a: "get", v: ver });
+    setSync(true);
+    if (saving || diff().length) return; // modifications locales en attente : elles passent d'abord
+    applyData(j);
+  } catch (e) { fail(e); }
+}
+function applyData(j) {
+  ver = j.v; if (!j.data) return;
+  const sig = () => JSON.stringify([D.dossiers, D.suivi, D.rappels, D.faits]), before = sig();
+  COLS.forEach(c => { D[c] = j.data[c]; synced[c] = Object.fromEntries(D[c].map(r => [String(r.id), JSON.stringify(r)])); });
+  D.faits = {}; synced.faits = {};
+  j.data.faits.forEach(k => { D.faits[k] = 1; synced.faits[fid(k)] = 1; });
+  const first = !ready; ready = true;
+  if (first) { migrer(); if (ech(jours).length && D.dossiers.length) tab = "rap"; render(); }
+  else if (sig() !== before) refresh();
+}
+function refresh() {
+  if ($("#dlg").open) { pendingRender = true; return; }
+  const ae = document.activeElement, id = ae && ae.id, pos = ae && ae.selectionStart;
+  render();
+  if (id && ["q", "qs", "qr"].includes(id)) { const el = $("#" + id); if (el) { el.focus(); try { el.setSelectionRange(pos, pos); } catch (e) {} } }
+}
+let pendingRender = false;
+async function initDb() {
+  await pull();
+  setInterval(() => persist().then(pull), POLL);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) pull(); });
+}
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const nid = () => Date.now() * 1000 + Math.floor(Math.random() * 1000); // identifiant unique, même si deux personnes créent en même temps
+const iso = d => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+const fr = s => s ? s.split("-").reverse().join("/") : "";
+const now = () => new Date().toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" });
+const sd = (y, m, d) => new Date(y, m, Math.min(+d, new Date(y, m + 1, 0).getDate()));
+const label = d => [d.numero, d.nom].filter(Boolean).join(" - ");
+const cmp = (a, b) => String(a ?? "").localeCompare(String(b ?? ""), "fr", { numeric: true });
+const byNum = (a, b) => cmp(a.numero, b.numero) || cmp(a.nom, b.nom);
+const mc = d => d.cloture ? +d.cloture.slice(5, 7) : 99;
+function toast(m) { const t = $("#toast"); t.textContent = m; t.classList.add("on"); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove("on"), 3200); }
+
+let tab = "dos", sortK = "mois", qs = "", curD = "all", curS = "", jours = 14, fil = {}, rtri = "date", rtype = "", showDone = false, qsui = "", qrap = "", curC = "", rcol = "";
+let curM = iso(new Date()).slice(0, 7);
+
+/* ---------- Échéances ---------- */
+function ech(j, withDone = false) {
+  const t = new Date(); t.setHours(0, 0, 0, 0);
+  const fin = new Date(t); fin.setDate(fin.getDate() + j);
+  const lb = new Date(t); lb.setDate(lb.getDate() - 45);
+  const out = [];
+  const add = (dt, type, dos, txt, rid, key, did) => {
+    const done = key ? !!D.faits[key] : !!(D.rappels.find(r => r.id == rid) || {}).fait;
+    if (done && !withDone) return;
+    out.push({ dt, type, dos, txt, rid, key, did, done, n: Math.round((dt - t) / 864e5) });
+  };
+  D.dossiers.forEach(d => {
+    const c = d.cloture ? new Date(d.cloture + "T00:00") : null;
+    const lbd = new Date(Math.max(lb, new Date((d.cree || iso(t)) + "T00:00")));
+    if (d.tva && d.echeance) for (let k = -2; k < 14; k++) {
+      const m = new Date(t.getFullYear(), t.getMonth() + k, 1), mo = m.getMonth();
+      const ok = d.periodicite == "Mensuelle" || (d.periodicite == "Trimestrielle" && [0, 3, 6, 9].includes(mo)) ||
+        (d.periodicite == "Annuelle" && c && mo == (c.getMonth() + 3) % 12);
+      if (ok) { const dt = sd(m.getFullYear(), mo, d.echeance); if (dt >= lbd && dt <= fin) add(dt, "TVA " + d.periodicite.toLowerCase(), label(d), "Déclaration de TVA", null, `${d.id}|tva|${iso(dt)}`, d.id); }
+    }
+    if (c) {
+      const f = new Date(t); f.setDate(f.getDate() + Math.max(j, 30));
+      [-1, 0, 1].forEach(y => { const dt = sd(t.getFullYear() + y, c.getMonth(), c.getDate()); if (dt >= lbd && dt <= f) add(dt, "Clôture", label(d), "Clôture du dossier", null, `${d.id}|cloture|${iso(dt)}`, d.id); });
+    }
+  });
+  D.rappels.filter(r => new Date(r.date + "T00:00") <= fin).forEach(r => {
+    const d = D.dossiers.find(x => x.id == r.did);
+    add(new Date(r.date + "T00:00"), "Rappel", d ? label(d) : "(général)", r.titre, r.id, undefined, r.did);
+  });
+  return out.sort((a, b) => a.dt - b.dt);
+}
+const delai = n => n < 0 ? `<span class=late>En retard de ${-n} j</span>` : n == 0 ? `<span class=late>Aujourd'hui</span>` : `<span class="${n <= 3 ? "soon" : "far"}">Dans ${n} j</span>`;
+
+/* ---------- Formulaire ---------- */
+const ov = o => Array.isArray(o) ? o : [o, o];
+function fld(f, v) {
+  v = v ?? "";
+  if (f.t == "sel" || f.t == "dsel") return (f.t == "dsel" ? `<input class=flt data-for=${f.k} placeholder="Taper une partie du nom ou du n° pour filtrer la liste…">` : "") + `<select name=${f.k} ${f.t == "dsel" ? "size=5" : ""}>${f.o.map(ov).map(([a, b]) => `<option value="${esc(a)}" ${a == v ? "selected" : ""}>${esc(b)}</option>`).join("")}</select>`;
+  if (f.t == "combo") return `<input name=${f.k} list=dl_${f.k} value="${esc(v)}"><datalist id=dl_${f.k}>${f.o.map(o => `<option value="${esc(o)}">`).join("")}</datalist>`;
+  if (f.t == "area") return `<textarea name=${f.k} rows=5>${esc(v)}</textarea>`;
+  if (f.t == "num") return `<input type=number min=1 max=31 name=${f.k} value="${esc(v)}">`;
+  return `<input type=${f.t == "date" ? "date" : f.t == "mail" ? "email" : f.t == "tel" ? "tel" : "text"} name=${f.k} value="${esc(v)}">`;
+}
+function ask(title, fields, vals = {}, check) {
+  return new Promise(res => {
+    const d = $("#dlg");
+    d.innerHTML = `<form><h2>${title}</h2>` + fields.map(f => f.t == "chk"
+      ? `<label class="chk ${f.full ? "full" : ""}"><input type=checkbox name=${f.k} ${vals[f.k] ? "checked" : ""}>${f.l}</label>`
+      : `<label class="${f.full ? "full" : ""}">${f.l}${fld(f, vals[f.k])}</label>`).join("") +
+      `<p class=err></p><div class=btns><button type=button class=btn id=no>Annuler</button><button class="btn pri">Enregistrer</button></div></form>`;
+    const form = d.querySelector("form");
+    d.querySelectorAll(".flt").forEach(inp => {
+      const f = fields.find(x => x.k == inp.dataset.for), sel = form.querySelector(`select[name=${f.k}]`);
+      const fill = () => {
+        const cur = sel.value, toks = norm(inp.value).split(/\s+/).filter(Boolean);
+        const L = f.o.filter(o => { const a = ov(o); return a[0] === "" || toks.every(t => norm(a[2] ?? a[1]).includes(t)); });
+        sel.innerHTML = L.map(o => { const [v, t] = ov(o); return `<option value="${esc(v)}" ${String(v) == cur ? "selected" : ""}>${esc(t)}</option>`; }).join("");
+        if (sel.selectedIndex < 0 && sel.options.length) sel.selectedIndex = 0;
+      };
+      inp.oninput = fill; fill();
+    });
+    form.onsubmit = e => {
+      e.preventDefault();
+      const fd = new FormData(form), v = {};
+      fields.forEach(f => v[f.k] = f.t == "chk" ? (fd.get(f.k) ? 1 : 0) : (fd.get(f.k) || "").trim());
+      const er = check && check(v);
+      if (er) { form.querySelector(".err").textContent = er; return; }
+      d.close(); res(v);
+    };
+    $("#no").onclick = () => { d.close(); res(null); };
+    d.oncancel = () => res(null);
+    d.showModal();
+  });
+}
+
+function oui(msg, okLabel = "Confirmer") {
+  return new Promise(res => {
+    const d = $("#dlg");
+    d.innerHTML = `<form><h2>Confirmation</h2><p class=full style="margin:0">${esc(msg)}</p><div class=btns><button type=button class=btn id=no>Annuler</button><button class="btn pri">${okLabel}</button></div></form>`;
+    $("#no").onclick = () => { d.close(); res(false); };
+    d.querySelector("form").onsubmit = e => { e.preventDefault(); d.close(); res(true); };
+    d.oncancel = () => res(false);
+    d.showModal();
+  });
+}
+
+/* ---------- Vues ---------- */
+const norm = s => String(s ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+const hay = d => norm([d.numero, d.nom, d.siret, String(d.siret || "").replace(/\s/g, ""), d.tel, String(d.tel || "").replace(/[\s.]/g, ""), d.mail,
+  d.logiciel, d.activite, d.depot, d.collab, d.cloture ? MOIS[mc(d) - 1] + " " + fr(d.cloture) : "",
+  d.tva ? "tva " + (d.periodicite || "") + " echeance " + d.echeance : "sans tva", d.social ? "social" : ""].join(" | "));
+const match = d => {
+  if (fil.mois && mc(d) != +fil.mois) return false;
+  if (fil.logiciel && d.logiciel != fil.logiciel) return false;
+  if (fil.collab && (fil.collab == "__none" ? d.collab : d.collab != fil.collab)) return false;
+  if (fil.tva == "1" && !d.tva) return false;
+  if (fil.tva == "0" && d.tva) return false;
+  if (fil.per && !(d.tva && d.periodicite == fil.per)) return false;
+  if (fil.social == "1" && !d.social) return false;
+  if (fil.social == "0" && d.social) return false;
+  if (fil.depot && d.depot != fil.depot) return false;
+  const h = hay(d);
+  return norm(qs).split(/\s+/).filter(Boolean).every(t => h.includes(t));
+};
+const collabs = () => [...new Set(D.dossiers.map(d => d.collab).filter(Boolean))].sort(cmp);
+const selC = (id, cur) => `<select id=${id} class=in-s><option value="">Tous les collaborateurs</option><option value="__none" ${cur == "__none" ? "selected" : ""}>Non attribué</option>${collabs().map(c => `<option ${c == cur ? "selected" : ""}>${esc(c)}</option>`).join("")}</select>`;
+function filtres() {
+  const uniq = k => [...new Set(D.dossiers.map(d => d[k]).filter(Boolean))].sort(cmp);
+  const sel = (id, ph, opts) => `<select class=in-s data-f=${id}><option value="">${ph}</option>${opts.map(o => { const [v, t] = ov(o); return `<option value="${esc(v)}" ${String(fil[id] ?? "") == String(v) ? "selected" : ""}>${esc(t)}</option>`; }).join("")}</select>`;
+  const n = Object.values(fil).filter(Boolean).length + (qs ? 1 : 0);
+  return `<div class="bar filt"><label>Filtres</label>` +
+    sel("collab", "Collaborateur : tous", [["__none", "Non attribué"], ...collabs()]) +
+    sel("mois", "Clôture : tous les mois", MOIS.map((m, i) => [i + 1, "Clôture : " + m])) +
+    sel("logiciel", "Logiciel : tous", uniq("logiciel")) +
+    sel("tva", "TVA : toutes", [["1", "Avec TVA"], ["0", "Sans TVA"]]) +
+    sel("per", "Périodicité : toutes", PERIODES) +
+    sel("social", "Social : tous", [["1", "Social à saisir"], ["0", "Pas de social"]]) +
+    sel("depot", "Dépôt : tous", uniq("depot")) +
+    (n ? `<button class="btn sm" data-a=resetF>Effacer la recherche et les filtres</button>` : "") + `</div>`;
+}
+
+function carte(d) {
+  const m = d.cloture ? MOIS[mc(d) - 1] : "";
+  return `<article class=card>
+    <div class=top><span class=num>${esc(d.numero) || "—"}</span><div><h3>${esc(d.nom)}</h3><p>${esc(d.activite)}</p></div>${m ? `<span class=mo>Clôture ${m}</span>` : ""}</div>
+    <div class=chips>
+      ${d.collab ? `<span class="chip col">👤 ${esc(d.collab)}</span>` : ""}
+      ${d.logiciel ? `<span class=chip>${esc(d.logiciel)}</span>` : ""}
+      ${d.tva ? `<span class="chip tva">TVA ${esc(d.periodicite).toLowerCase()} · le ${esc(d.echeance)}</span>` : `<span class="chip no">Sans TVA</span>`}
+      ${d.social ? `<span class="chip soc">Social à saisir</span>` : ""}
+      ${d.depot ? `<span class=chip>Dépôt : ${esc(d.depot)}</span>` : ""}
+    </div>
+    <div class=meta>
+      ${d.siret ? `<div>SIRET / SIREN : ${esc(d.siret)}</div>` : ""}
+      ${d.tel ? `<div><a href="tel:${esc(d.tel)}">${esc(d.tel)}</a></div>` : ""}
+      ${d.mail ? `<div><a href="mailto:${esc(d.mail)}">${esc(d.mail)}</a></div>` : ""}
+    </div>
+    <div class=foot><button class="btn sm" data-a=edD data-id=${d.id}>Modifier</button><button class="btn sm del" data-a=delD data-id=${d.id}>Supprimer</button></div>
+  </article>`;
+}
+
+function vDos() {
+  const all = D.dossiers;
+  let L = all.filter(match);
+  L.sort((a, b) => sortK == "mois" ? mc(a) - mc(b) || byNum(a, b) : sortK == "numero" ? byNum(a, b) : cmp(a[sortK], b[sortK]) || byNum(a, b));
+  let html = `<div class=stats>
+    <div class=stat><b>${all.length}</b><span>dossiers</span></div>
+    <div class=stat><b>${all.filter(d => d.tva).length}</b><span>avec TVA</span></div>
+    <div class=stat><b>${all.filter(d => d.social).length}</b><span>avec du social à saisir</span></div>
+    <div class=stat><b>${ech(jours).filter(x => x.n <= 7).length}</b><span>échéances à 7 jours ou moins</span></div></div>
+    <div class=bar><input id=q class=in-s placeholder="Rechercher partout : nom, n°, SIRET, tél, mail, activité, mois…" value="${esc(qs)}"><label>Trier par</label>
+    <select id=so class=in-s>${[["mois", "Mois de clôture"], ["numero", "N° de dossier"], ["nom", "Nom"], ["logiciel", "Logiciel"]].map(([v, t]) => `<option value=${v} ${v == sortK ? "selected" : ""}>${t}</option>`).join("")}</select>
+    <span class=sp></span><button class="btn pri" data-a=addD>+ Ajouter un dossier</button></div>${filtres()}`;
+  html += `<p class=hint style="margin:-6px 0 4px">${L.length} résultat(s) sur ${all.length}</p>`;
+  if (!L.length) return html + `<p class=empty>${all.length ? "Aucun dossier ne correspond à ta recherche." : "Aucun dossier pour l'instant. Clique sur « Ajouter un dossier » pour commencer, ou importe une sauvegarde."}</p>`;
+  if (sortK == "mois") {
+    const g = {};
+    L.forEach(d => (g[mc(d)] = g[mc(d)] || []).push(d));
+    Object.keys(g).map(Number).sort((a, b) => a - b).forEach(k => {
+      html += `<h2 class=grp>${k == 99 ? "Sans date de clôture" : "Clôture en " + MOIS[k - 1]} <i>${g[k].length}</i></h2><div class=grid>${g[k].map(carte).join("")}</div>`;
+    });
+  } else html += `<div class=grid>${L.map(carte).join("")}</div>`;
+  return html;
+}
+
+function vSui() {
+  if (!D.dossiers.length) return `<p class=empty>Crée d'abord un dossier dans l'onglet « Dossiers ».</p>`;
+  const ds = [...D.dossiers].sort(byNum), all = curD == "all";
+  if (!all && !ds.some(d => d.id == curD)) curD = "all";
+  const t = new Date(), ms = ["Tous"];
+  for (let k = 6; k >= -18; k--) ms.push(iso(new Date(t.getFullYear(), t.getMonth() + k, 1)).slice(0, 7));
+  const toks = norm(qsui).split(/\s+/).filter(Boolean);
+  const hs = s => { const d = D.dossiers.find(x => x.id == s.did); return norm([d ? hay(d) : "", s.rub, s.note, s.statut, s.date ? fr(s.date) : s.mois].join(" ")); };
+  const okC = d => !curC || (curC == "__none" ? !d.collab : d.collab == curC);
+  const L = D.suivi.filter(s => okC(D.dossiers.find(x => x.id == s.did) || {}) && (curD == "all" || s.did == curD) && (curM == "Tous" || s.mois == curM) && (!curS || s.statut == curS) && (!toks.length || toks.every(t => hs(s).includes(t))))
+    .sort((a, b) => dd(b).localeCompare(dd(a)) || b.id - a.id);
+  const nom = id => { const d = D.dossiers.find(x => x.id == id); return d ? label(d) : "(dossier supprimé)"; };
+  const A_ = curD == "all";
+  return `<div class=bar><input id=qs class=in-s placeholder="Rechercher : une partie du nom, du n°, du détail…" value="${esc(qsui)}"><label>Dossier</label><select id=sd class=in-s><option value=all ${A_ ? "selected" : ""}>Tous les dossiers</option>${ds.filter(d => okC(d) && (!toks.length || d.id == curD || toks.every(t => hay(d).includes(t)))).map(d => `<option value=${d.id} ${d.id == curD ? "selected" : ""}>${esc(label(d))}</option>`).join("")}</select>
+    <label>Mois</label><select id=sm class=in-s>${ms.map(m => `<option ${m == curM ? "selected" : ""}>${m}</option>`).join("")}</select>
+    <select id=ss class=in-s><option value="">Tous les statuts</option>${STATUTS.map(x => `<option ${x == curS ? "selected" : ""}>${x}</option>`).join("")}</select>
+    ${selC("sc", curC)}<span class=sp></span><button class="btn pri" data-a=addS>+ Ajouter une rubrique</button></div>` +
+    (L.length ? `<div class=panel><table><thead><tr><th>Date</th>${A_ ? "<th>Dossier</th>" : ""}<th>Statut</th><th>Détails / mises à jour</th><th>Dernière MAJ</th><th></th></tr></thead><tbody>` +
+      L.map(s => `<tr><td style="white-space:nowrap">${s.date ? fr(s.date) : s.mois}</td>${A_ ? `<td><b>${esc(nom(s.did))}</b></td>` : ""}<td><select data-s=${s.id} class="sel s${STATUTS.indexOf(s.statut)}">${STATUTS.map(x => `<option ${x == s.statut ? "selected" : ""}>${x}</option>`).join("")}</select></td><td class=note>${s.rub ? `<b>${esc(s.rub)}</b>${s.note ? " — " : ""}` : ""}${esc(s.note)}</td><td>${esc(s.maj)}</td><td class=act><button class="btn sm" data-a=edS data-id=${s.id}>Modifier</button> <button class="btn sm del" data-a=delS data-id=${s.id}>Supprimer</button></td></tr>`).join("") +
+      `</tbody></table></div>` : `<p class=empty>Aucune mise à jour pour cette sélection. Clique sur « Ajouter une rubrique » pour en créer une.</p>`);
+}
+
+function vRap(it) {
+  const order = ["TVA mensuelle", "TVA trimestrielle", "TVA annuelle", "Clôture", "Rappel"];
+  const okCd = did => { const d = D.dossiers.find(z => z.id == did); return rcol == "__none" ? !(d && d.collab) : !!d && d.collab == rcol; };
+  const tk = norm(qrap).split(/\s+/).filter(Boolean);
+  const L = it.filter(x => (showDone || !x.done) && (!rcol || okCd(x.did)) && (!tk.length || tk.every(t => norm([x.type, x.dos, x.txt, fr(iso(x.dt))].join(" ")).includes(t))) && (!rtype || (rtype == "TVA" ? x.type.startsWith("TVA") : x.type == rtype)));
+  if (rtri == "type") L.sort((a, b) => order.indexOf(a.type) - order.indexOf(b.type) || a.dt - b.dt);
+  else if (rtri == "dossier") L.sort((a, b) => cmp(a.dos, b.dos) || a.dt - b.dt);
+  let last = "", rows = "";
+  L.forEach(x => {
+    if (rtri == "type" && x.type != last) { last = x.type; rows += `<tr><td colspan=7 style="background:var(--hover);font-weight:700;color:var(--acc)">${x.type} <span class=far>(${L.filter(y => y.type == x.type).length})</span></td></tr>`; }
+    rows += `<tr${x.done ? " class=done" : ""}><td><input type=checkbox class=ck title="Marquer comme fait" ${x.done ? "checked" : ""} ${x.key ? `data-k="${esc(x.key)}"` : `data-r=${x.rid}`}></td><td>${fr(iso(x.dt))}</td><td>${x.done ? "<span class=far>Fait ✓</span>" : delai(x.n)}</td><td>${x.type}</td><td>${esc(x.dos)}</td><td>${esc(x.txt)}</td><td class=act>${x.rid ? `<button class="btn sm del" data-a=delR data-id=${x.rid}>Supprimer</button>` : ""}</td></tr>`;
+  });
+  const o = (v, t, cur) => `<option value="${v}" ${v == cur ? "selected" : ""}>${t}</option>`;
+  return `<div class=bar><input id=qr class=in-s placeholder="Rechercher : une partie du dossier, du type, du détail…" value="${esc(qrap)}"><label>Afficher les échéances des</label><input type=number id=j min=1 max=365 value=${jours} class=in-s style="width:80px"><label>prochains jours</label>
+    ${selC("rc", rcol)}<label>Type</label><select id=rt class=in-s>${o("", "Tous les types", rtype)}${o("TVA", "TVA (toutes)", rtype)}${o("Clôture", "Clôtures", rtype)}${o("Rappel", "Rappels personnels", rtype)}</select>
+    <label>Trier par</label><select id=rs class=in-s>${o("date", "Date", rtri)}${o("type", "Type de rappel", rtri)}${o("dossier", "Dossier", rtri)}</select>
+    <label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type=checkbox id=sdone ${showDone ? "checked" : ""}>Afficher les faits</label>
+    <span class=sp></span><button class="btn pri" data-a=addR>+ Ajouter un rappel</button></div>` +
+    (L.length ? `<div class=panel><table><thead><tr><th style="width:50px">Fait</th><th>Date</th><th>Délai</th><th>Type</th><th>Dossier</th><th>Détail</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>` : `<p class=empty>Rien à signaler pour cette sélection dans les ${jours} prochains jours.</p>`) +
+    `<p class=hint>Les échéances de TVA et de clôture sont calculées à partir des fiches dossier : annuelle = 3 mois après la clôture, trimestrielle = janvier, avril, juillet, octobre.</p>`;
+}
+
+function render() {
+  setSync(DBX);
+  if (!ready) { $("#main").innerHTML = "<p class=empty>Chargement des données partagées…</p>"; return; }
+  const it = ech(jours, true), urg = it.filter(x => !x.done && x.n <= 3).length;
+  document.title = (urg ? `(${urg}) ` : "") + "Suivi des dossiers comptables";
+  $("#badge").textContent = urg || "";
+  document.querySelectorAll("nav button").forEach(b => b.classList.toggle("on", b.dataset.t == tab));
+  $("#main").innerHTML = (readOnly ? '<p class=hint style="margin:0 0 14px;color:var(--warn);font-weight:600">Lecture seule : tu peux consulter les dossiers mais pas les modifier.</p>' : "") + { dos: vDos, sui: vSui, rap: () => vRap(it) }[tab]();
+}
+
+/* ---------- Actions ---------- */
+const FD = () => [
+  { k: "numero", l: "N° de dossier", t: "text" }, { k: "nom", l: "Nom du dossier", t: "text" },
+  { k: "collab", l: "Collaborateur en charge du dossier", t: "combo", o: collabs(), full: 1 },
+  { k: "siret", l: "SIRET / SIREN", t: "text" }, { k: "activite", l: "Activité de l'entreprise", t: "text" },
+  { k: "tel", l: "Téléphone", t: "tel" }, { k: "mail", l: "Email", t: "mail" },
+  { k: "logiciel", l: "Logiciel utilisé", t: "combo", o: LOGICIELS }, { k: "depot", l: "Méthode de dépôt des documents", t: "combo", o: DEPOTS },
+  { k: "cloture", l: "Date de clôture", t: "date" }, { k: "social", l: "Social à saisir", t: "chk" },
+  { k: "tva", l: "TVA applicable", t: "chk", full: 1 },
+  { k: "periodicite", l: "Périodicité de la TVA", t: "sel", o: PERIODES }, { k: "echeance", l: "Jour d'échéance (ex : 16, 21, 24)", t: "num" }
+];
+const chkD = v => !v.numero ? "Le n° de dossier est obligatoire (il sert de lien avec Excel)." : !v.nom ? "Le nom du dossier est obligatoire."
+  : (v.siret && !/^\d{9}(\d{5})?$/.test(v.siret.replace(/\s/g, ""))) ? "Le SIREN a 9 chiffres, le SIRET en a 14."
+  : (v.tva && !(+v.echeance >= 1 && +v.echeance <= 31)) ? "Indique un jour d'échéance entre 1 et 31." : "";
+const FS = () => [
+  { k: "did", l: "Dossier", t: "dsel", o: [...D.dossiers].sort(byNum).map(d => [d.id, label(d), hay(d)]), full: 1 },
+  { k: "date", l: "Date (aujourd'hui par défaut)", t: "date" }, { k: "statut", l: "Statut", t: "sel", o: STATUTS },
+  { k: "note", l: "Détails / mises à jour", t: "area", full: 1 }
+];
+const chkS = v => !v.did ? "Choisis un dossier." : !v.date ? "La date est obligatoire." : "";
+
+const A = {
+  resetF() { fil = {}; qs = ""; },
+  async addD() { const v = await ask("Nouveau dossier", FD(), { periodicite: "Mensuelle" }, chkD); if (v) D.dossiers.push({ id: nid(), cree: iso(new Date()), ...v }); },
+  async edD(e) { const d = D.dossiers.find(x => x.id == e.dataset.id), v = await ask("Modifier le dossier", FD(), d, chkD); if (v) Object.assign(d, v); },
+  async delD(e) { if (await oui("Supprimer ce dossier et tout son suivi ?", "Supprimer")) { const i = +e.dataset.id; D.dossiers = D.dossiers.filter(x => x.id != i); D.suivi = D.suivi.filter(x => x.did != i); D.rappels = D.rappels.filter(x => x.did != i); } },
+  async addS() {
+    const v = await ask("Nouvelle rubrique", FS(), { did: curD == "all" ? "" : curD, date: iso(new Date()), statut: STATUTS[0] }, chkS);
+    if (v) {
+      D.suivi.push({ id: nid(), did: +v.did, date: v.date, mois: v.date.slice(0, 7), statut: v.statut, note: v.note, maj: now() });
+      if (curD != "all" && curD != +v.did) curD = "all";
+      if (curM != "Tous" && curM != v.date.slice(0, 7)) curM = "Tous";
+    }
+  },
+  async edS(e) {
+    const x = D.suivi.find(r => r.id == e.dataset.id), v = await ask("Modifier la rubrique", FS(), { ...x, date: x.date || x.mois + "-01" }, chkS);
+    if (v) Object.assign(x, { did: +v.did, date: v.date, mois: v.date.slice(0, 7), statut: v.statut, note: v.note, maj: now() });
+  },
+  async delS(e) { if (await oui("Supprimer cette rubrique ?", "Supprimer")) D.suivi = D.suivi.filter(x => x.id != e.dataset.id); },
+  async addR() {
+    const opts = [["", "(général)"], ...[...D.dossiers].sort(byNum).map(d => [d.id, label(d), hay(d)])];
+    const v = await ask("Nouveau rappel", [{ k: "titre", l: "Rappel", t: "text", full: 1 }, { k: "date", l: "Date", t: "date" }, { k: "did", l: "Dossier", t: "dsel", o: opts, full: 1 }], {},
+      v => !v.titre || !v.date ? "Le texte et la date sont obligatoires." : "");
+    if (v) D.rappels.push({ id: nid(), did: v.did ? +v.did : null, titre: v.titre, date: v.date, fait: 0 });
+  },
+  doneR(e) { D.rappels.find(x => x.id == e.dataset.id).fait = 1; },
+  delR(e) { D.rappels = D.rappels.filter(x => x.id != e.dataset.id); }
+};
+
+/* ---------- Envoi vers Excel (copier-coller) ---------- */
+const fx = s => s || ""; // dates AAAA-MM-JJ : comprises par Excel quelle que soit la langue
+const dd = s => s.date || (s.mois + "-01");
+const dn = id => { const d = D.dossiers.find(x => x.id == id) || {}; return d.numero || ""; };
+const XL = {
+  dos: ["Dossiers", () => [...D.dossiers].sort(byNum).map(d => [d.numero, d.nom, d.siret, d.tel, d.mail, d.logiciel, d.activite, fx(d.cloture), d.tva ? "Oui" : "Non", d.tva ? d.periodicite : "", d.tva ? d.echeance : "", d.depot, d.social ? "Oui" : "Non"])],
+  sui: ["Suivi mensuel", () => [...D.suivi].sort((a, b) => cmp(dn(a.did), dn(b.did)) || dd(a).localeCompare(dd(b))).map(s => [dn(s.did), dd(s), s.statut, (s.rub ? s.rub + (s.note ? " : " : "") : "") + s.note, s.maj])],
+  rap: ["Rappels", () => D.rappels.map(r => [fx(r.date), dn(r.did), r.titre, r.fait ? "Oui" : "Non"])]
+};
+async function copier(txt) {
+  const host = $("#dlg").open ? $("#dlg") : document.body; // un champ hors de la fenêtre ouverte est bloqué par le navigateur
+  const ta = document.createElement("textarea");
+  ta.value = txt; ta.style.cssText = "position:fixed;left:0;top:0;opacity:0";
+  host.appendChild(ta); ta.focus(); ta.select();
+  let ok = false; try { ok = document.execCommand("copy"); } catch (e) {}
+  ta.remove();
+  if (!ok && navigator.clipboard) { try { await navigator.clipboard.writeText(txt); ok = true; } catch (e) {} }
+  return ok;
+}
+function menuXl() {
+  const d = $("#dlg");
+  d.innerHTML = `<form><h2>Envoyer vers Excel</h2>
+    <p class="hint full" style="margin:0">Clique sur un bouton, ouvre ton fichier Excel, clique sur la cellule <b>A2</b> de la feuille indiquée et fais <b>Ctrl+V</b>. Commence par les dossiers.</p>
+    <div class=xl>${Object.entries(XL).map(([k, [nom, f]]) => `<button type=button class=btn data-x=${k}>Copier ${f().length} ligne(s) → feuille « ${nom} »</button>`).join("")}</div>
+    <div id=xlfb class=full></div>
+    <div class=btns><button type=button class="btn pri" id=no>Fermer</button></div></form>`;
+  $("#no").onclick = () => d.close();
+  d.showModal();
+}
+
+document.addEventListener("click", async e => {
+  const t = e.target.closest("[data-t]"), a = e.target.closest("[data-a]"), x = e.target.closest("[data-x]");
+  if (t) { tab = t.dataset.t; const m = $("#main"); m.classList.remove("in"); void m.offsetWidth; m.classList.add("in"); render(); }
+  else if (x) {
+    if (x.dataset.x == "menu") return menuXl();
+    const [nom, f] = XL[x.dataset.x];
+    const txt = f().map(r => r.map(c => String(c ?? "").replace(/[\t\r\n]+/g, " ")).join("\t")).join("\r\n");
+    const fb = $("#xlfb");
+    if (await copier(txt)) {
+      const m = `✓ Copié (${f().length} ligne(s)). Dans Excel : feuille « ${nom} », cellule A2, puis Ctrl+V.`;
+      if (fb) fb.innerHTML = `<p style="margin:0;color:var(--ok);font-weight:600">${m}</p>`; else toast(m);
+    } else if (fb) {
+      fb.innerHTML = `<p class=hint style="margin:0 0 6px;color:var(--bad)">La copie automatique est bloquée par ton navigateur. Le texte est sélectionné ci-dessous : fais Ctrl+C, puis colle-le dans Excel (cellule A2 de la feuille « ${nom} »).</p><textarea readonly style="width:100%;height:110px;border:1px solid var(--line);border-radius:10px;padding:8px;font:12px monospace"></textarea>`;
+      const t = fb.querySelector("textarea"); t.value = txt; t.focus(); t.select();
+    }
+  }
+  else if (a && A[a.dataset.a]) { await A[a.dataset.a](a); save(); render(); }
+});
+document.addEventListener("change", e => {
+  const x = e.target;
+  if (x.id == "sd") curD = x.value == "all" ? "all" : +x.value;
+  else if (x.id == "sm") curM = x.value;
+  else if (x.id == "so") sortK = x.value;
+  else if (x.id == "ss") curS = x.value;
+  else if (x.id == "sc") curC = x.value;
+  else if (x.id == "rc") rcol = x.value;
+  else if (x.id == "rs") rtri = x.value;
+  else if (x.id == "rt") rtype = x.value;
+  else if (x.dataset.f) fil[x.dataset.f] = x.value;
+  else if (x.id == "sdone") showDone = x.checked;
+  else if (x.dataset.k) { if (x.checked) D.faits[x.dataset.k] = 1; else delete D.faits[x.dataset.k]; save(); }
+  else if (x.dataset.r) { D.rappels.find(r => r.id == x.dataset.r).fait = x.checked ? 1 : 0; save(); }
+  else if (x.id == "j") jours = Math.max(1, +x.value || 14);
+  else if (x.dataset.s) { const s = D.suivi.find(r => r.id == x.dataset.s); s.statut = x.value; s.maj = now(); save(); }
+  else return;
+  render();
+});
+document.addEventListener("input", e => {
+  const id = e.target.id, v = e.target.value;
+  if (!["q", "qs", "qr"].includes(id)) return;
+  if (id == "q") qs = v; else if (id == "qs") qsui = v; else qrap = v;
+  render();
+  const q = $("#" + id); q.focus(); q.setSelectionRange(v.length, v.length);
+});
+
+/* ---------- Sauvegarde / import ---------- */
+$("#exp").onclick = async () => {
+  const txt = JSON.stringify(D, null, 1), name = "sauvegarde-comptabilite-" + iso(new Date()) + ".json";
+  let dl = null; try { if (typeof claude !== "undefined" && claude.use) dl = await claude.use("downloads"); } catch (e) {}
+  if (dl) { try { await dl.save({ filename: name, data: txt }); toast("Sauvegarde prête"); } catch (e) { if (!e || e.code != "declined") toast("Téléchargement impossible."); } return; }
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([txt], { type: "application/json" })); a.download = name; a.click(); toast("Sauvegarde téléchargée");
+};
+async function importer(txt) {
+  let j; try { j = JSON.parse(txt); if (!Array.isArray(j.dossiers)) throw 0; } catch (x) { return toast("Fichier de sauvegarde invalide."); }
+  const msg = DBX ? `Remplacer les données PARTAGÉES de tous les collaborateurs (${D.dossiers.length} dossier(s) actuellement) par cette sauvegarde (${j.dossiers.length} dossier(s)) ?`
+    : `Remplacer les données actuelles par cette sauvegarde (${j.dossiers.length} dossiers) ?`;
+  if (!(await oui(msg, "Remplacer"))) return;
+  D = { dossiers: j.dossiers || [], suivi: j.suivi || [], rappels: j.rappels || [], faits: j.faits || {} };
+  migrer(); save(); render(); toast("Sauvegarde importée : enregistrement en cours…");
+}
+function menuImp() {
+  const d = $("#dlg");
+  d.innerHTML = `<form><h2>Importer une sauvegarde</h2>
+    <p class="hint full" style="margin:0">Choisis le fichier .json exporté depuis l'ancien site, ou colle son contenu dans la zone de texte.</p>
+    <label class=full>Fichier<input type=file id=impf accept=".json,application/json"></label>
+    <label class=full>…ou contenu de la sauvegarde<textarea id=impt rows=5 placeholder="Colle ici le contenu du fichier .json"></textarea></label>
+    <div class=btns><button type=button class=btn id=no>Annuler</button><button class="btn pri">Importer</button></div></form>`;
+  $("#no").onclick = () => d.close();
+  $("#impf").onchange = e => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => { $("#impt").value = r.result; }; r.readAsText(f); };
+  d.querySelector("form").onsubmit = e => { e.preventDefault(); const t = $("#impt").value; d.close(); if (t.trim()) importer(t); else toast("Rien à importer."); };
+  d.showModal();
+}
+$("#imp").onclick = menuImp;
+$("#dlg").addEventListener("close", () => { if (pendingRender) { pendingRender = false; refresh(); } });
+
+migrer();
+if (ech(jours).length && D.dossiers.length) tab = "rap";
+render();
+initDb();
+</script>
+</body>
+</html>
