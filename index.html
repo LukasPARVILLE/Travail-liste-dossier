@@ -126,7 +126,7 @@ const MOIS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", 
 
 let D = { dossiers: [], suivi: [], rappels: [], faits: {} };
 let DBX = false, readOnly = false, saving = false, ready = false, paused = false, ver = "";
-const CODE_DUREE_H = 24; // durée de validité du code mémorisé, en heures : le site le redemande ensuite
+const CODE_DUREE_H = 8; // durée de validité du code mémorisé, en heures : le site le redemande ensuite
 let code = localStorage.getItem("compta_code") || "", codeT = +localStorage.getItem("compta_code_t") || 0;
 const codeExpire = () => { if (code && Date.now() - codeT > CODE_DUREE_H * 36e5) { code = ""; localStorage.removeItem("compta_code"); localStorage.removeItem("compta_code_t"); } };
 const COLS = ["dossiers", "suivi", "rappels"], synced = { dossiers: {}, suivi: {}, rappels: {}, faits: {} };
