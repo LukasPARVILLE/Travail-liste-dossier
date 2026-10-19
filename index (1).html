@@ -8,7 +8,7 @@
 :root{--ink:#172033;--ink2:#3a4458;--mut:#6b7488;--bg:#f2f4f8;--card:#fff;--line:#e4e8f0;--line2:#c9d0de;--acc:#3454d1;--acc2:#2742b0;--soft:#eaeefc;--ok:#1f8a5b;--warn:#c77700;--bad:#c93232;--chip:#f1f3f8;--chipink:#4a5469;--okbg:#e3f4ec;--warnbg:#fdf0d9;--hover:#fafbfd;--r:14px;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--ink:#e6e9f2;--ink2:#c3c9d8;--mut:#98a1b5;--bg:#0f1420;--card:#181f2e;--line:#2a3347;--line2:#3a4560;--acc:#5b78f0;--acc2:#7a93f5;--soft:#222d57;--ok:#4cc38a;--warn:#f0a63a;--bad:#ff7a70;--chip:#232c40;--chipink:#b4bccd;--okbg:#17352a;--warnbg:#3a2d14;--hover:#1c2436;color-scheme:dark}}
 :root[data-theme="dark"]{--ink:#e6e9f2;--ink2:#c3c9d8;--mut:#98a1b5;--bg:#0f1420;--card:#181f2e;--line:#2a3347;--line2:#3a4560;--acc:#5b78f0;--acc2:#7a93f5;--soft:#222d57;--ok:#4cc38a;--warn:#f0a63a;--bad:#ff7a70;--chip:#232c40;--chipink:#b4bccd;--okbg:#17352a;--warnbg:#3a2d14;--hover:#1c2436;color-scheme:dark}
-*{box-sizing:border-box}
+*{box-sizing:border-box}R
 html{scroll-behavior:smooth;scroll-padding-top:env(safe-area-inset-top,0px)}
 body{margin:0;font:14.5px/1.5 "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased}
 button,input,select,textarea{font:inherit;color:inherit}
@@ -116,7 +116,7 @@ dialog label.chk input{width:18px;height:18px;accent-color:var(--acc)}
 <div id="toast"></div>
 
 <script>
-const API = "COLLER_ICI_L_URL_DE_VOTRE_APPLICATION_WEB", POLL = 4000; // URL « …/exec » fournie par Apps Script
+const API = "https://script.google.com/macros/s/AKfycbyVzjGMoFr7qBX4vPAWcjpnpes1UTyATqHzTiz3DEXYd-MWz8aaNh66X4jvq4rpaC4g/exec", POLL = 4000; // URL « …/exec » fournie par Apps Script
 const STATUTS = ["À faire", "En cours", "Fait"];
 const RUBRIQUES = ["Réception des pièces", "Saisie comptable", "Rapprochement bancaire", "TVA", "Social", "Révision / bilan", "Relance client", "Autre"];
 const LOGICIELS = ["Sage", "Ciel", "Quadra", "EBP", "Cegid", "Pennylane", "Tiime", "QuickBooks", "Excel"];
