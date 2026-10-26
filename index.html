@@ -94,6 +94,18 @@ dialog label.chk input{width:18px;height:18px;accent-color:var(--acc)}
 #toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);background:var(--ink);color:var(--bg);padding:11px 20px;border-radius:12px;opacity:0;pointer-events:none;transition:.3s;z-index:20}
 #toast.on{opacity:1;transform:translate(-50%,0)}
 @media(max-width:640px){main,header{padding-left:14px;padding-right:14px}dialog form{grid-template-columns:1fr}#q{min-width:0;width:100%}}
+.tb,#ed{max-width:900px;margin-left:auto;margin-right:auto}
+.tb{display:flex;flex-wrap:wrap;gap:3px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:6px;margin-bottom:12px;position:sticky;top:76px;z-index:4;box-shadow:0 2px 8px rgba(16,24,40,.06)}
+.tb button,.tb select{border:1px solid transparent;background:none;border-radius:8px;min-width:32px;height:32px;padding:0 8px;cursor:pointer;font-weight:600}
+.tb button:hover,.tb select:hover{background:var(--soft)}
+.tb i{width:1px;height:22px;background:var(--line);margin:0 4px}
+.sw{width:18px;height:18px;border-radius:50%;border:1px solid var(--line2);display:inline-block;vertical-align:middle}
+.nst{margin-left:auto;color:var(--mut);font-size:12.5px;padding:0 8px}
+#ed{display:block;background:var(--card);border-radius:var(--r);box-shadow:0 1px 3px rgba(16,24,40,.08);min-height:62vh;padding:34px 42px;outline:0;font-size:16px;line-height:1.65;overflow-wrap:anywhere}
+#ed:empty:before{content:"Écris ici ce que tu as à faire cette semaine…";color:var(--mut)}
+#ed h2{font-size:23px;margin:.7em 0 .3em;line-height:1.25}
+#ed [style*="background-color"]{color:#172033}
+#ed .tk{width:17px;height:17px;vertical-align:-3px;margin-right:4px;accent-color:var(--ok);cursor:pointer}
 </style>
 </head>
 <body>
@@ -103,6 +115,7 @@ dialog label.chk input{width:18px;height:18px;accent-color:var(--acc)}
     <button data-t="dos">Dossiers</button>
     <button data-t="sui">Suivi mensuel</button>
     <button data-t="rap">Rappels<span id="badge"></span></button>
+    <button data-t="not">Notes</button>
   </nav>
   <span id="sync" class="sync"></span>
   <div class="tools">
@@ -116,7 +129,7 @@ dialog label.chk input{width:18px;height:18px;accent-color:var(--acc)}
 <div id="toast"></div>
 
 <script>
-const API = "https://script.google.com/macros/s/AKfycbz1yhLZ3FLOCDAX8XgS3Indv-hdHyWFdO8dZmFpJLKudWiq6jxF6PI24uIfefC6A37g/exec", POLL = 4000; // URL « …/exec » fournie par Apps Script
+const API = "https://script.google.com/macros/s/AKfycbzAIknw9I0yK2Ut6KPTybR1VdPiLirKO0i95OoSz6U1sKv_mVwBz_zdJZHiepJ_rmZU/exec", POLL = 4000; // URL « …/exec » fournie par Apps Script
 const STATUTS = ["À faire", "En cours", "Fait"];
 const RUBRIQUES = ["Réception des pièces", "Saisie comptable", "Rapprochement bancaire", "TVA", "Social", "Révision / bilan", "Relance client", "Autre"];
 const LOGICIELS = ["Sage", "Ciel", "Quadra", "EBP", "Cegid", "Pennylane", "Tiime", "QuickBooks", "Excel"];
@@ -124,12 +137,12 @@ const DEPOTS = ["Email", "Portail client", "Plateforme du logiciel", "Clé USB",
 const PERIODES = ["Mensuelle", "Trimestrielle", "Annuelle"];
 const MOIS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
 
-let D = { dossiers: [], suivi: [], rappels: [], faits: {} };
+let D = { dossiers: [], suivi: [], rappels: [], notes: [], faits: {} };
 let DBX = false, readOnly = false, saving = false, ready = false, paused = false, ver = "";
-const CODE_DUREE_H = 8; // durée de validité du code mémorisé, en heures : le site le redemande ensuite
+const CODE_DUREE_H = 24; // durée de validité du code mémorisé, en heures : le site le redemande ensuite
 let code = localStorage.getItem("compta_code") || "", codeT = +localStorage.getItem("compta_code_t") || 0;
 const codeExpire = () => { if (code && Date.now() - codeT > CODE_DUREE_H * 36e5) { code = ""; localStorage.removeItem("compta_code"); localStorage.removeItem("compta_code_t"); } };
-const COLS = ["dossiers", "suivi", "rappels"], synced = { dossiers: {}, suivi: {}, rappels: {}, faits: {} };
+const COLS = ["dossiers", "suivi", "rappels", "notes"], synced = { dossiers: {}, suivi: {}, rappels: {}, notes: {}, faits: {} };
 const fid = k => String(k).replace(/\|/g, "_");
 const migrer = () => { let ch = false; D.faits = D.faits || {}; D.dossiers.forEach(d => { if (!d.cree) { d.cree = iso(new Date()); ch = true; } }); if (ch) save(); };
 const save = () => persist().then(pull);
@@ -183,8 +196,8 @@ async function pull() {
 }
 function applyData(j) {
   ver = j.v; if (!j.data) return;
-  const sig = () => JSON.stringify([D.dossiers, D.suivi, D.rappels, D.faits]), before = sig();
-  COLS.forEach(c => { D[c] = j.data[c]; synced[c] = Object.fromEntries(D[c].map(r => [String(r.id), JSON.stringify(r)])); });
+  const sig = () => JSON.stringify([D.dossiers, D.suivi, D.rappels, D.notes, D.faits]), before = sig();
+  COLS.forEach(c => { D[c] = j.data[c] || []; synced[c] = Object.fromEntries(D[c].map(r => [String(r.id), JSON.stringify(r)])); });
   D.faits = {}; synced.faits = {};
   j.data.faits.forEach(k => { D.faits[k] = 1; synced.faits[fid(k)] = 1; });
   const first = !ready; ready = true;
@@ -192,6 +205,7 @@ function applyData(j) {
   else if (sig() !== before) refresh();
 }
 function refresh() {
+  if (tab == "not" && document.activeElement && document.activeElement.id == "ed") { majNote(); return; } // ne pas écraser ce que tu es en train d'écrire
   if ($("#dlg").open) { pendingRender = true; return; }
   const ae = document.activeElement, id = ae && ae.id, pos = ae && ae.selectionStart;
   render();
@@ -436,7 +450,7 @@ function render() {
   document.title = (urg ? `(${urg}) ` : "") + "Suivi des dossiers comptables";
   $("#badge").textContent = urg || "";
   document.querySelectorAll("nav button").forEach(b => b.classList.toggle("on", b.dataset.t == tab));
-  $("#main").innerHTML = (readOnly ? '<p class=hint style="margin:0 0 14px;color:var(--warn);font-weight:600">Lecture seule : tu peux consulter les dossiers mais pas les modifier.</p>' : "") + { dos: vDos, sui: vSui, rap: () => vRap(it) }[tab]();
+  $("#main").innerHTML = (readOnly ? '<p class=hint style="margin:0 0 14px;color:var(--warn);font-weight:600">Lecture seule : tu peux consulter les dossiers mais pas les modifier.</p>' : "") + { dos: vDos, sui: vSui, rap: () => vRap(it), not: vNot }[tab]();
 }
 
 /* ---------- Actions ---------- */
@@ -576,7 +590,7 @@ async function importer(txt) {
   const msg = DBX ? `Remplacer les données PARTAGÉES de tous les collaborateurs (${D.dossiers.length} dossier(s) actuellement) par cette sauvegarde (${j.dossiers.length} dossier(s)) ?`
     : `Remplacer les données actuelles par cette sauvegarde (${j.dossiers.length} dossiers) ?`;
   if (!(await oui(msg, "Remplacer"))) return;
-  D = { dossiers: j.dossiers || [], suivi: j.suivi || [], rappels: j.rappels || [], faits: j.faits || {} };
+  D = { dossiers: j.dossiers || [], suivi: j.suivi || [], rappels: j.rappels || [], notes: j.notes || [], faits: j.faits || {} };
   migrer(); save(); render(); toast("Sauvegarde importée : enregistrement en cours…");
 }
 function menuImp() {
@@ -593,6 +607,70 @@ function menuImp() {
 }
 $("#imp").onclick = menuImp;
 $("#dlg").addEventListener("close", () => { if (pendingRender) { pendingRender = false; refresh(); } });
+
+/* ---------- Notes (éditeur de texte riche partagé) ---------- */
+let ntimer, rng, lastTyped = 0;
+function majNote() { // met à jour la note affichée avec la version des autres, sans déplacer le curseur
+  if (Date.now() - lastTyped < 5000) { setTimeout(() => { if (tab == "not") refresh(); }, 5000); return; }
+  const ed = $("#ed"), n = D.notes[0], h = clean(n && n.html), s = getSelection();
+  if (!ed || ed.innerHTML === h) return;
+  let off = 0;
+  if (s.rangeCount && ed.contains(s.anchorNode)) { const r = s.getRangeAt(0).cloneRange(); r.selectNodeContents(ed); r.setEnd(s.anchorNode, s.anchorOffset); off = r.toString().length; }
+  ed.innerHTML = h;
+  const w = document.createTreeWalker(ed, NodeFilter.SHOW_TEXT); let nd;
+  while ((nd = w.nextNode())) { if (off <= nd.length) { const r = document.createRange(); r.setStart(nd, off); r.collapse(true); s.removeAllRanges(); s.addRange(r); break; } off -= nd.length; }
+}
+const SZ = [["Petit", 2], ["Normal", 3], ["Grand", 5], ["Très grand", 6], ["Énorme", 7]];
+const TB = [["bold", "<b>G</b>", "Gras"], ["italic", "<i>I</i>", "Italique"], ["underline", "<u>S</u>", "Souligné"], ["strikeThrough", "<s>B</s>", "Barré"], "|",
+  ["hiliteColor", '<span class="sw" style="background:#fff176"></span>', "Surligner en jaune", "#fff176"], ["hiliteColor", '<span class="sw" style="background:#a5f3b5"></span>', "Surligner en vert", "#a5f3b5"], ["hiliteColor", '<span class="sw" style="background:#ffb3c1"></span>', "Surligner en rose", "#ffb3c1"], "|",
+  ["foreColor", '<span style="color:#c93232">A</span>', "Texte rouge", "#c93232"], ["foreColor", '<span style="color:#3454d1">A</span>', "Texte bleu", "#3454d1"], ["foreColor", '<span style="color:#1f8a5b">A</span>', "Texte vert", "#1f8a5b"], "|", "SIZE", "|",
+  ["formatBlock", "Titre", "Titre", "h2"], ["formatBlock", "¶", "Paragraphe normal", "p"], ["insertUnorderedList", "• Liste", "Liste à puces"], ["insertOrderedList", "1. Liste", "Liste numérotée"], ["check", "☑ Case", "Case à cocher"], "|",
+  ["justifyLeft", "⇤", "Aligner à gauche"], ["justifyCenter", "↔", "Centrer"], ["removeFormat", "Effacer", "Effacer la mise en forme"], ["undo", "↶", "Annuler"], ["redo", "↷", "Rétablir"]];
+function clean(h) {
+  const t = document.createElement("template"); t.innerHTML = h || "";
+  t.content.querySelectorAll("script,iframe,object,embed,style,link,meta,form").forEach(x => x.remove());
+  t.content.querySelectorAll("*").forEach(el => [...el.attributes].forEach(a => {
+    const n = a.name.toLowerCase(), v = a.value.toLowerCase();
+    if (n.startsWith("on") || v.includes("javascript:") || (n == "style" && /url\(|expression/.test(v))) el.removeAttribute(a.name);
+  }));
+  return t.innerHTML;
+}
+function vNot() {
+  const n = D.notes[0], bar = TB.map(b => b == "|" ? "<i></i>" : b == "SIZE"
+    ? `<select id="nsz" title="Taille du texte"><option value="">Taille</option>${SZ.map(s => `<option value="${s[1]}">${s[0]}</option>`).join("")}</select>`
+    : `<button type="button" data-n="${b[0]}" data-v="${b[3] || ""}" title="${b[2]}">${b[1]}</button>`).join("");
+  return `<div class="tb">${bar}<span class="nst" id="nst">${n && n.maj ? "Dernière modification : " + new Date(n.maj).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" }) : ""}</span></div>
+  <div id="ed" contenteditable="true" spellcheck="true">${clean(n && n.html)}</div>`;
+}
+function nCmd(c, v) {
+  const ed = $("#ed"); if (!ed) return;
+  ed.focus();
+  if (rng) { const s = getSelection(); s.removeAllRanges(); s.addRange(rng); }
+  if (c == "check") document.execCommand("insertHTML", false, '<input type="checkbox" class="tk">&nbsp;');
+  else { document.execCommand("styleWithCSS", false, ["hiliteColor", "foreColor", "fontSize"].includes(c)); document.execCommand(c, false, v || null); }
+  noteInput();
+}
+function noteInput() {
+  const ed = $("#ed"), st = $("#nst"); if (!ed) return;
+  const html = ed.innerHTML;
+  if (html.length > 45000) { st.textContent = "⚠ Note trop longue pour être enregistrée : raccourcis-la"; return; }
+  lastTyped = Date.now();
+  let n = D.notes[0]; if (!n) { n = { id: "bloc" }; D.notes = [n]; }
+  n.html = html; n.maj = new Date().toISOString();
+  st.textContent = "Enregistrement…";
+  clearTimeout(ntimer);
+  ntimer = setTimeout(async () => {
+    await save(); const s = $("#nst"); if (!s) return;
+    s.textContent = diff().length ? "Enregistrement en cours…" : "Enregistré à " + new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+  }, 800);
+}
+document.addEventListener("selectionchange", () => { const s = getSelection(), ed = $("#ed"); if (ed && s.rangeCount && ed.contains(s.anchorNode)) rng = s.getRangeAt(0).cloneRange(); });
+document.addEventListener("mousedown", e => { const b = e.target.closest(".tb [data-n]"); if (b) { e.preventDefault(); nCmd(b.dataset.n, b.dataset.v); } });
+document.addEventListener("change", e => {
+  if (e.target.id == "nsz") { if (e.target.value) nCmd("fontSize", e.target.value); e.target.value = ""; }
+  else if (e.target.classList && e.target.classList.contains("tk")) { e.target.toggleAttribute("checked", e.target.checked); noteInput(); }
+});
+document.addEventListener("input", e => { if (e.target.id == "ed") noteInput(); });
 
 migrer();
 if (ech(jours).length && D.dossiers.length) tab = "rap";
