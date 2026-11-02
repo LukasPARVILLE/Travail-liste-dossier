@@ -129,7 +129,7 @@ dialog label.chk input{width:18px;height:18px;accent-color:var(--acc)}
 <div id="toast"></div>
 
 <script>
-const API = "https://script.google.com/macros/s/AKfycbzAIknw9I0yK2Ut6KPTybR1VdPiLirKO0i95OoSz6U1sKv_mVwBz_zdJZHiepJ_rmZU/exec", POLL = 4000; // URL « …/exec » fournie par Apps Script
+const API = "https://script.google.com/macros/s/AKfycbwQJ_PqW12ar7von-vCoRzAhsRyUnm7pjN3Ard9jTEnTzZWQPF54NGyx5d_JGixiYWp/exec", POLL = 4000; // URL « …/exec » fournie par Apps Script
 const STATUTS = ["À faire", "En cours", "Fait"];
 const RUBRIQUES = ["Réception des pièces", "Saisie comptable", "Rapprochement bancaire", "TVA", "Social", "Révision / bilan", "Relance client", "Autre"];
 const LOGICIELS = ["Sage", "Ciel", "Quadra", "EBP", "Cegid", "Pennylane", "Tiime", "QuickBooks", "Excel"];
@@ -138,21 +138,21 @@ const PERIODES = ["Mensuelle", "Trimestrielle", "Annuelle"];
 const MOIS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
 
 let D = { dossiers: [], suivi: [], rappels: [], notes: [], faits: {} };
-let DBX = false, readOnly = false, saving = false, ready = false, paused = false, ver = "";
+let DBX = false, readOnly = false, saving = false, ready = false, paused = false, ver = "", wgen = 0, pulling = false, lastErr = 0;
 const CODE_DUREE_H = 24; // durée de validité du code mémorisé, en heures : le site le redemande ensuite
 let code = localStorage.getItem("compta_code") || "", codeT = +localStorage.getItem("compta_code_t") || 0;
 const codeExpire = () => { if (code && Date.now() - codeT > CODE_DUREE_H * 36e5) { code = ""; localStorage.removeItem("compta_code"); localStorage.removeItem("compta_code_t"); } };
 const COLS = ["dossiers", "suivi", "rappels", "notes"], synced = { dossiers: {}, suivi: {}, rappels: {}, notes: {}, faits: {} };
 const fid = k => String(k).replace(/\|/g, "_");
 const migrer = () => { let ch = false; D.faits = D.faits || {}; D.dossiers.forEach(d => { if (!d.cree) { d.cree = iso(new Date()); ch = true; } }); if (ch) save(); };
-const save = () => persist().then(pull);
+const save = () => { wgen++; return persist().then(pull); };
 
 function setSync(ok) { DBX = ok; const s = $("#sync"); if (s) { s.textContent = ok ? "● Partagé, mise à jour en direct" : "○ Hors ligne, nouvelle tentative…"; s.className = "sync" + (ok ? " on" : ""); } }
 async function api(body) {
   if (!API.startsWith("http")) throw "config";
   codeExpire();
   if (!code) { code = (prompt("Code d'accès de l'équipe :") || "").trim(); if (!code) { paused = true; throw "code"; } codeT = Date.now(); localStorage.setItem("compta_code", code); localStorage.setItem("compta_code_t", codeT); }
-  const j = await (await fetch(API, { method: "POST", body: JSON.stringify({ ...body, code }) })).json();
+  const j = await (await fetch(API, { method: "POST", body: JSON.stringify({ ...body, code }), signal: AbortSignal.timeout(25000) })).json();
   if (j.err) { if (j.err == "code") { code = ""; localStorage.removeItem("compta_code"); localStorage.removeItem("compta_code_t"); } throw j.err; }
   return j;
 }
@@ -170,15 +170,20 @@ function diff() {
 }
 async function persist() {
   if (!ready || saving) return;
-  saving = true;
+  saving = true; wgen++;
   try {
-    let ops;
+    let ops, sent = false;
     while ((ops = diff()).length) {
       await api({ a: "sync", ops });
       ops.forEach(([c, id, js]) => { if (js === null) delete synced[c][id]; else synced[c][id] = c == "faits" ? 1 : js; });
-      setSync(true);
+      wgen++; setSync(true);
+      if (ops.some(o => o[0] != "notes")) sent = true;
     }
-  } catch (e) { fail(e); } finally { saving = false; }
+    if (sent) toast("Enregistré ✓");
+  } catch (e) {
+    fail(e);
+    if (e != "config" && e != "code" && Date.now() - lastErr > 20000) { lastErr = Date.now(); toast("Pas encore enregistré (" + ((e && e.message) || e) + "). Nouvelle tentative automatique…"); }
+  } finally { saving = false; }
 }
 function fail(e) {
   if (e == "config") { if (!ready) $("#main").innerHTML = "<p class=empty>Configuration manquante : colle l'URL de ton application web Apps Script dans la constante API de index.html.</p>"; return; }
@@ -186,13 +191,16 @@ function fail(e) {
   setSync(false);
 }
 async function pull() {
-  if (paused || saving) return;
+  if (paused || saving || pulling) return;
+  pulling = true; const g = wgen;
   try {
     const j = await api({ a: "get", v: ver });
     setSync(true);
-    if (saving || diff().length) return; // modifications locales en attente : elles passent d'abord
+    // on ignore la réponse si tu as modifié quelque chose entre-temps ou si une fenêtre de saisie est ouverte :
+    // elle écraserait ta modification ; la prochaine synchronisation la rattrapera
+    if (saving || g !== wgen || diff().length || $("#dlg").open) return;
     applyData(j);
-  } catch (e) { fail(e); }
+  } catch (e) { fail(e); } finally { pulling = false; }
 }
 function applyData(j) {
   ver = j.v; if (!j.data) return;
@@ -477,7 +485,7 @@ const chkS = v => !v.did ? "Choisis un dossier." : !v.date ? "La date est obliga
 const A = {
   resetF() { fil = {}; qs = ""; },
   async addD() { const v = await ask("Nouveau dossier", FD(), { periodicite: "Mensuelle" }, chkD); if (v) D.dossiers.push({ id: nid(), cree: iso(new Date()), ...v }); },
-  async edD(e) { const d = D.dossiers.find(x => x.id == e.dataset.id), v = await ask("Modifier le dossier", FD(), d, chkD); if (v) Object.assign(d, v); },
+  async edD(e) { const id = e.dataset.id, v = await ask("Modifier le dossier", FD(), D.dossiers.find(x => x.id == id), chkD), d = D.dossiers.find(x => x.id == id); if (v && d) Object.assign(d, v); },
   async delD(e) { if (await oui("Supprimer ce dossier et tout son suivi ?", "Supprimer")) { const i = +e.dataset.id; D.dossiers = D.dossiers.filter(x => x.id != i); D.suivi = D.suivi.filter(x => x.did != i); D.rappels = D.rappels.filter(x => x.did != i); } },
   async addS() {
     const v = await ask("Nouvelle rubrique", FS(), { did: curD == "all" ? "" : curD, date: iso(new Date()), statut: STATUTS[0] }, chkS);
@@ -488,8 +496,8 @@ const A = {
     }
   },
   async edS(e) {
-    const x = D.suivi.find(r => r.id == e.dataset.id), v = await ask("Modifier la rubrique", FS(), { ...x, date: x.date || x.mois + "-01" }, chkS);
-    if (v) Object.assign(x, { did: +v.did, date: v.date, mois: v.date.slice(0, 7), statut: v.statut, note: v.note, maj: now() });
+    const id = e.dataset.id, x0 = D.suivi.find(r => r.id == id), v = await ask("Modifier la rubrique", FS(), { ...x0, date: x0.date || x0.mois + "-01" }, chkS), x = D.suivi.find(r => r.id == id);
+    if (v && x) Object.assign(x, { did: +v.did, date: v.date, mois: v.date.slice(0, 7), statut: v.statut, note: v.note, maj: now() });
   },
   async delS(e) { if (await oui("Supprimer cette rubrique ?", "Supprimer")) D.suivi = D.suivi.filter(x => x.id != e.dataset.id); },
   async addR() {
@@ -672,6 +680,7 @@ document.addEventListener("change", e => {
 });
 document.addEventListener("input", e => { if (e.target.id == "ed") noteInput(); });
 
+window.addEventListener("beforeunload", e => { if (ready && (saving || diff().length)) { e.preventDefault(); e.returnValue = ""; } });
 migrer();
 if (ech(jours).length && D.dossiers.length) tab = "rap";
 render();
