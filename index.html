@@ -106,6 +106,15 @@ dialog label.chk input{width:18px;height:18px;accent-color:var(--acc)}
 #ed h2{font-size:23px;margin:.7em 0 .3em;line-height:1.25}
 #ed [style*="background-color"]{color:#172033}
 #ed .tk{width:17px;height:17px;vertical-align:-3px;margin-right:4px;accent-color:var(--ok);cursor:pointer}
+dialog .pkw{display:grid;gap:5px;color:var(--mut);font-size:12.5px;font-weight:700}
+.pkin{width:100%;border:1px solid var(--line);border-radius:10px;padding:9px 11px;outline:0;background:var(--card);color:var(--ink);font-weight:400}
+.pkin:focus{border-color:var(--acc);box-shadow:0 0 0 3px var(--soft)}
+.pkin.ok{border-color:var(--ok);background:var(--okbg)}
+.pkl{border:1px solid var(--line);border-radius:10px;max-height:210px;overflow:auto;background:var(--card)}
+.pko{padding:9px 12px;cursor:pointer;color:var(--ink);font-weight:500;border-bottom:1px solid var(--line)}
+.pko:last-child{border-bottom:0}.pko:hover,.pko.act{background:var(--soft)}.pko.sel{background:var(--acc);color:#fff}
+.pkc{color:var(--ok);font-size:12.5px;font-weight:700;min-height:1.2em}
+td a{color:var(--acc)}
 </style>
 </head>
 <body>
@@ -115,9 +124,11 @@ dialog label.chk input{width:18px;height:18px;accent-color:var(--acc)}
     <button data-t="dos">Dossiers</button>
     <button data-t="sui">Suivi mensuel</button>
     <button data-t="rap">Rappels<span id="badge"></span></button>
+    <button data-t="fou">Fournisseurs</button>
     <button data-t="not">Notes</button>
   </nav>
   <span id="sync" class="sync"></span>
+  <span class="sync" style="font-weight:400;opacity:.7" title="Numéro de version du site">v4</span>
   <div class="tools">
     <button class="btn" data-x="menu">Envoyer vers Excel</button>
     <button class="btn" id="exp">Exporter la sauvegarde</button>
@@ -129,7 +140,7 @@ dialog label.chk input{width:18px;height:18px;accent-color:var(--acc)}
 <div id="toast"></div>
 
 <script>
-const API = "https://script.google.com/macros/s/AKfycbwQJ_PqW12ar7von-vCoRzAhsRyUnm7pjN3Ard9jTEnTzZWQPF54NGyx5d_JGixiYWp/exec", POLL = 4000; // URL « …/exec » fournie par Apps Script
+const API = "https://script.google.com/macros/s/AKfycbyqBD180oh6vwrmUiw1hHz1lN6zIAt4PfzxoLhqqZjOSD2k5LICVNjEaEAz44IBGYnv/exec", POLL = 4000; // URL « …/exec » fournie par Apps Script
 const STATUTS = ["À faire", "En cours", "Fait"];
 const RUBRIQUES = ["Réception des pièces", "Saisie comptable", "Rapprochement bancaire", "TVA", "Social", "Révision / bilan", "Relance client", "Autre"];
 const LOGICIELS = ["Sage", "Ciel", "Quadra", "EBP", "Cegid", "Pennylane", "Tiime", "QuickBooks", "Excel"];
@@ -137,12 +148,12 @@ const DEPOTS = ["Email", "Portail client", "Plateforme du logiciel", "Clé USB",
 const PERIODES = ["Mensuelle", "Trimestrielle", "Annuelle"];
 const MOIS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
 
-let D = { dossiers: [], suivi: [], rappels: [], notes: [], faits: {} };
+let D = { dossiers: [], suivi: [], rappels: [], notes: [], fournisseurs: [], faits: {} };
 let DBX = false, readOnly = false, saving = false, ready = false, paused = false, ver = "", wgen = 0, pulling = false, lastErr = 0;
 const CODE_DUREE_H = 24; // durée de validité du code mémorisé, en heures : le site le redemande ensuite
 let code = localStorage.getItem("compta_code") || "", codeT = +localStorage.getItem("compta_code_t") || 0;
 const codeExpire = () => { if (code && Date.now() - codeT > CODE_DUREE_H * 36e5) { code = ""; localStorage.removeItem("compta_code"); localStorage.removeItem("compta_code_t"); } };
-const COLS = ["dossiers", "suivi", "rappels", "notes"], synced = { dossiers: {}, suivi: {}, rappels: {}, notes: {}, faits: {} };
+const COLS = ["dossiers", "suivi", "rappels", "notes", "fournisseurs"], synced = { dossiers: {}, suivi: {}, rappels: {}, notes: {}, fournisseurs: {}, faits: {} };
 const fid = k => String(k).replace(/\|/g, "_");
 const migrer = () => { let ch = false; D.faits = D.faits || {}; D.dossiers.forEach(d => { if (!d.cree) { d.cree = iso(new Date()); ch = true; } }); if (ch) save(); };
 const save = () => { wgen++; return persist().then(pull); };
@@ -204,7 +215,7 @@ async function pull() {
 }
 function applyData(j) {
   ver = j.v; if (!j.data) return;
-  const sig = () => JSON.stringify([D.dossiers, D.suivi, D.rappels, D.notes, D.faits]), before = sig();
+  const sig = () => JSON.stringify([D.dossiers, D.suivi, D.rappels, D.notes, D.fournisseurs, D.faits]), before = sig();
   COLS.forEach(c => { D[c] = j.data[c] || []; synced[c] = Object.fromEntries(D[c].map(r => [String(r.id), JSON.stringify(r)])); });
   D.faits = {}; synced.faits = {};
   j.data.faits.forEach(k => { D.faits[k] = 1; synced.faits[fid(k)] = 1; });
@@ -217,7 +228,7 @@ function refresh() {
   if ($("#dlg").open) { pendingRender = true; return; }
   const ae = document.activeElement, id = ae && ae.id, pos = ae && ae.selectionStart;
   render();
-  if (id && ["q", "qs", "qr"].includes(id)) { const el = $("#" + id); if (el) { el.focus(); try { el.setSelectionRange(pos, pos); } catch (e) {} } }
+  if (id && ["q", "qs", "qr", "qf"].includes(id)) { const el = $("#" + id); if (el) { el.focus(); try { el.setSelectionRange(pos, pos); } catch (e) {} } }
 }
 let pendingRender = false;
 async function initDb() {
@@ -279,7 +290,8 @@ const delai = n => n < 0 ? `<span class=late>En retard de ${-n} j</span>` : n ==
 const ov = o => Array.isArray(o) ? o : [o, o];
 function fld(f, v) {
   v = v ?? "";
-  if (f.t == "sel" || f.t == "dsel") return (f.t == "dsel" ? `<input class=flt data-for=${f.k} placeholder="Taper une partie du nom ou du n° pour filtrer la liste…">` : "") + `<select name=${f.k} ${f.t == "dsel" ? "size=5" : ""}>${f.o.map(ov).map(([a, b]) => `<option value="${esc(a)}" ${a == v ? "selected" : ""}>${esc(b)}</option>`).join("")}</select>`;
+  if (f.t == "dsel") { const c = f.o.map(ov).find(a => String(a[0]) === String(v)); return `<input type=hidden name=${f.k} value="${esc(c ? c[0] : "")}"><input class=pkin data-pk=${f.k} autocomplete=off placeholder="Clique ici, puis choisis dans la liste (ou tape pour chercher)…" value="${esc(c ? c[1] : "")}"><div class=pkc></div><div class=pkl hidden></div>`; }
+  if (f.t == "sel") return `<select name=${f.k}>${f.o.map(ov).map(([a, b]) => `<option value="${esc(a)}" ${a == v ? "selected" : ""}>${esc(b)}</option>`).join("")}</select>`;
   if (f.t == "combo") return `<input name=${f.k} list=dl_${f.k} value="${esc(v)}"><datalist id=dl_${f.k}>${f.o.map(o => `<option value="${esc(o)}">`).join("")}</datalist>`;
   if (f.t == "area") return `<textarea name=${f.k} rows=5>${esc(v)}</textarea>`;
   if (f.t == "num") return `<input type=number min=1 max=31 name=${f.k} value="${esc(v)}">`;
@@ -290,7 +302,7 @@ function ask(title, fields, vals = {}, check) {
     const d = $("#dlg");
     d.innerHTML = `<form><h2>${title}</h2>` + fields.map(f => f.t == "chk"
       ? `<label class="chk ${f.full ? "full" : ""}"><input type=checkbox name=${f.k} ${vals[f.k] ? "checked" : ""}>${f.l}</label>`
-      : `<label class="${f.full ? "full" : ""}">${f.l}${fld(f, vals[f.k])}</label>`).join("") +
+      : f.t == "dsel" ? `<div class="pkw full"><span>${f.l}</span>${fld(f, vals[f.k])}</div>` : `<label class="${f.full ? "full" : ""}">${f.l}${fld(f, vals[f.k])}</label>`).join("") +
       `<p class=err></p><div class=btns><button type=button class=btn id=no>Annuler</button><button class="btn pri">Enregistrer</button></div></form>`;
     const form = d.querySelector("form");
     d.querySelectorAll(".flt").forEach(inp => {
@@ -302,6 +314,27 @@ function ask(title, fields, vals = {}, check) {
         if (sel.selectedIndex < 0 && sel.options.length) sel.selectedIndex = 0;
       };
       inp.oninput = fill; fill();
+    });
+    d.querySelectorAll("[data-pk]").forEach(inp => {
+      const f = fields.find(x => x.k == inp.dataset.pk), hid = form.querySelector(`input[type=hidden][name=${f.k}]`), box = inp.parentNode.querySelector(".pkl"), msg = inp.parentNode.querySelector(".pkc"), O = f.o.map(ov);
+      let shown = O, act = -1, typed = false;
+      const mark = () => { const c = O.find(a => String(a[0]) === hid.value); inp.classList.toggle("ok", !!c && c[0] !== ""); msg.textContent = c && c[0] !== "" ? "✓ Sélectionné : " + c[1] : ""; };
+      const draw = () => { box.innerHTML = shown.length ? shown.map((a, i) => `<div class="pko${hid.value !== "" && String(a[0]) === hid.value ? " sel" : ""}${i == act ? " act" : ""}" data-i=${i}>${esc(a[1])}</div>`).join("") : "<div class=pko style=cursor:default>Aucun résultat</div>"; box.hidden = false; if (act >= 0 && box.children[act]) box.children[act].scrollIntoView({ block: "nearest" }); };
+      const pick = i => { const a = shown[i]; if (!a) return; hid.value = a[0]; inp.value = a[1]; typed = false; box.hidden = true; mark(); };
+      inp.onfocus = inp.onclick = () => { if (!box.hidden) return; typed = false; shown = O; act = -1; draw(); inp.select(); };
+      inp.oninput = () => {
+        typed = true; hid.value = ""; mark();
+        const toks = norm(inp.value).split(/\s+/).filter(Boolean);
+        shown = O.filter(a => toks.every(t => norm(a[2] ?? a[1]).includes(t))); act = shown.length ? 0 : -1; draw();
+      };
+      inp.onkeydown = e => {
+        if (e.key == "ArrowDown" || e.key == "ArrowUp") { e.preventDefault(); if (box.hidden) draw(); act = Math.max(0, Math.min(shown.length - 1, act + (e.key == "ArrowDown" ? 1 : -1))); draw(); }
+        else if (e.key == "Enter" && !box.hidden) { e.preventDefault(); pick(act >= 0 ? act : 0); }
+        else if (e.key == "Escape" && !box.hidden) { e.preventDefault(); e.stopPropagation(); box.hidden = true; }
+      };
+      inp.onblur = () => { box.hidden = true; };
+      box.onmousedown = e => { e.preventDefault(); const o = e.target.closest("[data-i]"); if (o) pick(+o.dataset.i); };
+      mark();
     });
     form.onsubmit = e => {
       e.preventDefault();
@@ -458,7 +491,7 @@ function render() {
   document.title = (urg ? `(${urg}) ` : "") + "Suivi des dossiers comptables";
   $("#badge").textContent = urg || "";
   document.querySelectorAll("nav button").forEach(b => b.classList.toggle("on", b.dataset.t == tab));
-  $("#main").innerHTML = (readOnly ? '<p class=hint style="margin:0 0 14px;color:var(--warn);font-weight:600">Lecture seule : tu peux consulter les dossiers mais pas les modifier.</p>' : "") + { dos: vDos, sui: vSui, rap: () => vRap(it), not: vNot }[tab]();
+  $("#main").innerHTML = (readOnly ? '<p class=hint style="margin:0 0 14px;color:var(--warn);font-weight:600">Lecture seule : tu peux consulter les dossiers mais pas les modifier.</p>' : "") + { dos: vDos, sui: vSui, rap: () => vRap(it), not: vNot, fou: vFou }[tab]();
 }
 
 /* ---------- Actions ---------- */
@@ -482,11 +515,33 @@ const FS = () => [
 ];
 const chkS = v => !v.did ? "Choisis un dossier." : !v.date ? "La date est obligatoire." : "";
 
+const FF = () => [
+  { k: "did", l: "Client (dossier chez nous)", t: "dsel", o: [...D.dossiers].sort(byNum).map(d => [d.id, label(d), hay(d)]) },
+  { k: "fournisseur", l: "Nom du fournisseur", t: "text", full: 1 },
+  { k: "ncli", l: "N° client chez le fournisseur", t: "text", full: 1 },
+  { k: "mail", l: "Mail du fournisseur", t: "text" }, { k: "tel", l: "N° de téléphone du fournisseur", t: "text" }];
+const chkF = v => !v.did ? "Choisis le client dans la liste." : !v.fournisseur ? "Le nom du fournisseur est obligatoire." : "";
+let qfou = "";
+function vFou() {
+  if (!D.dossiers.length) return `<p class=empty>Crée d'abord un dossier dans l'onglet « Dossiers ».</p>`;
+  const toks = norm(qfou).split(/\s+/).filter(Boolean), cl = id => { const d = D.dossiers.find(x => x.id == id); return d ? label(d) : "(dossier supprimé)"; };
+  const L = D.fournisseurs.filter(f => !toks.length || toks.every(t => norm([cl(f.did), f.fournisseur, f.ncli, f.mail, f.tel].join(" ")).includes(t)))
+    .sort((a, b) => cmp(cl(a.did), cl(b.did)) || cmp(a.fournisseur, b.fournisseur));
+  const mail = m => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(m || "") ? `<a href="mailto:${esc(m)}">${esc(m)}</a>` : esc(m);
+  return `<div class=bar><input id=qf class=in-s placeholder="Rechercher : client, fournisseur, n°, mail, téléphone…" value="${esc(qfou)}"><span class=sp></span><button class="btn pri" data-a=addF>+ Ajouter un contact fournisseur</button></div>` +
+    (L.length ? `<div class=panel><table><thead><tr><th>Client</th><th>Fournisseur</th><th>N° client chez le fournisseur</th><th>Mail</th><th>Téléphone</th><th></th></tr></thead><tbody>` +
+      L.map(f => `<tr><td><b>${esc(cl(f.did))}</b></td><td>${esc(f.fournisseur)}</td><td>${esc(f.ncli)}</td><td>${mail(f.mail)}</td><td>${esc(f.tel)}</td><td class=act><button class="btn sm" data-a=edF data-id=${f.id}>Modifier</button> <button class="btn sm del" data-a=delF data-id=${f.id}>Supprimer</button></td></tr>`).join("") +
+      `</tbody></table></div>` : `<p class=empty>${D.fournisseurs.length ? "Aucun résultat pour cette recherche." : "Aucun contact fournisseur. Clique sur « Ajouter un contact fournisseur » pour en créer un."}</p>`);
+}
+
 const A = {
+  async addF() { const v = await ask("Nouveau contact fournisseur", FF(), {}, chkF); if (v) D.fournisseurs.push({ id: nid(), did: +v.did, fournisseur: v.fournisseur, ncli: v.ncli, mail: v.mail, tel: v.tel, maj: now() }); },
+  async edF(e) { const id = e.dataset.id, v = await ask("Modifier le contact fournisseur", FF(), D.fournisseurs.find(x => x.id == id), chkF), f = D.fournisseurs.find(x => x.id == id); if (v && f) Object.assign(f, { did: +v.did, fournisseur: v.fournisseur, ncli: v.ncli, mail: v.mail, tel: v.tel, maj: now() }); },
+  async delF(e) { if (await oui("Supprimer ce contact fournisseur ?", "Supprimer")) D.fournisseurs = D.fournisseurs.filter(x => x.id != e.dataset.id); },
   resetF() { fil = {}; qs = ""; },
   async addD() { const v = await ask("Nouveau dossier", FD(), { periodicite: "Mensuelle" }, chkD); if (v) D.dossiers.push({ id: nid(), cree: iso(new Date()), ...v }); },
   async edD(e) { const id = e.dataset.id, v = await ask("Modifier le dossier", FD(), D.dossiers.find(x => x.id == id), chkD), d = D.dossiers.find(x => x.id == id); if (v && d) Object.assign(d, v); },
-  async delD(e) { if (await oui("Supprimer ce dossier et tout son suivi ?", "Supprimer")) { const i = +e.dataset.id; D.dossiers = D.dossiers.filter(x => x.id != i); D.suivi = D.suivi.filter(x => x.did != i); D.rappels = D.rappels.filter(x => x.did != i); } },
+  async delD(e) { if (await oui("Supprimer ce dossier et tout son suivi ?", "Supprimer")) { const i = +e.dataset.id; D.dossiers = D.dossiers.filter(x => x.id != i); D.suivi = D.suivi.filter(x => x.did != i); D.rappels = D.rappels.filter(x => x.did != i); D.fournisseurs = D.fournisseurs.filter(x => x.did != i); } },
   async addS() {
     const v = await ask("Nouvelle rubrique", FS(), { did: curD == "all" ? "" : curD, date: iso(new Date()), statut: STATUTS[0] }, chkS);
     if (v) {
@@ -517,7 +572,8 @@ const dn = id => { const d = D.dossiers.find(x => x.id == id) || {}; return d.nu
 const XL = {
   dos: ["Dossiers", () => [...D.dossiers].sort(byNum).map(d => [d.numero, d.nom, d.siret, d.tel, d.mail, d.logiciel, d.activite, fx(d.cloture), d.tva ? "Oui" : "Non", d.tva ? d.periodicite : "", d.tva ? d.echeance : "", d.depot, d.social ? "Oui" : "Non"])],
   sui: ["Suivi mensuel", () => [...D.suivi].sort((a, b) => cmp(dn(a.did), dn(b.did)) || dd(a).localeCompare(dd(b))).map(s => [dn(s.did), dd(s), s.statut, (s.rub ? s.rub + (s.note ? " : " : "") : "") + s.note, s.maj])],
-  rap: ["Rappels", () => D.rappels.map(r => [fx(r.date), dn(r.did), r.titre, r.fait ? "Oui" : "Non"])]
+  rap: ["Rappels", () => D.rappels.map(r => [fx(r.date), dn(r.did), r.titre, r.fait ? "Oui" : "Non"])],
+  fou: ["Fournisseurs", () => D.fournisseurs.map(f => [dn(f.did), (D.dossiers.find(x => x.id == f.did) || {}).nom || "", f.fournisseur, f.ncli, f.mail, f.tel])]
 };
 async function copier(txt) {
   const host = $("#dlg").open ? $("#dlg") : document.body; // un champ hors de la fenêtre ouverte est bloqué par le navigateur
@@ -579,8 +635,8 @@ document.addEventListener("change", e => {
 });
 document.addEventListener("input", e => {
   const id = e.target.id, v = e.target.value;
-  if (!["q", "qs", "qr"].includes(id)) return;
-  if (id == "q") qs = v; else if (id == "qs") qsui = v; else qrap = v;
+  if (!["q", "qs", "qr", "qf"].includes(id)) return;
+  if (id == "q") qs = v; else if (id == "qs") qsui = v; else if (id == "qf") qfou = v; else qrap = v;
   render();
   const q = $("#" + id); q.focus(); q.setSelectionRange(v.length, v.length);
 });
@@ -598,7 +654,7 @@ async function importer(txt) {
   const msg = DBX ? `Remplacer les données PARTAGÉES de tous les collaborateurs (${D.dossiers.length} dossier(s) actuellement) par cette sauvegarde (${j.dossiers.length} dossier(s)) ?`
     : `Remplacer les données actuelles par cette sauvegarde (${j.dossiers.length} dossiers) ?`;
   if (!(await oui(msg, "Remplacer"))) return;
-  D = { dossiers: j.dossiers || [], suivi: j.suivi || [], rappels: j.rappels || [], notes: j.notes || [], faits: j.faits || {} };
+  D = { dossiers: j.dossiers || [], suivi: j.suivi || [], rappels: j.rappels || [], notes: j.notes || [], fournisseurs: j.fournisseurs || [], faits: j.faits || {} };
   migrer(); save(); render(); toast("Sauvegarde importée : enregistrement en cours…");
 }
 function menuImp() {
