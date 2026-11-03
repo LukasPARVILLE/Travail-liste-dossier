@@ -115,20 +115,86 @@ dialog .pkw{display:grid;gap:5px;color:var(--mut);font-size:12.5px;font-weight:7
 .pko:last-child{border-bottom:0}.pko:hover,.pko.act{background:var(--soft)}.pko.sel{background:var(--acc);color:#fff}
 .pkc{color:var(--ok);font-size:12.5px;font-weight:700;min-height:1.2em}
 td a{color:var(--acc)}
+.fl{display:inline-flex;align-items:center;gap:8px;color:var(--mut);font-weight:600;font-size:13px}
+.sync .dt{display:inline-block;width:9px;height:9px;border-radius:50%;background:currentColor;margin-right:6px;vertical-align:0}
+nav .ic,#mnu{display:none}
+nav .lb{display:inline}
+@media (max-width:800px){
+  body{font-size:15px}
+  header{padding:10px 14px;gap:10px;flex-wrap:nowrap;background:var(--card);backdrop-filter:none;-webkit-backdrop-filter:none}
+  .brand{font-size:15px;flex:1;min-width:0;white-space:nowrap}
+  #sync .st{display:none}
+  #sync{font-size:12px}
+  #mnu{display:inline-block;padding:6px 14px;font-size:18px;line-height:1}
+  .tools{display:none;position:absolute;left:10px;right:10px;top:100%;margin:6px 0 0;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px;box-shadow:0 14px 40px rgba(16,24,40,.22)}
+  header.open .tools{display:flex}
+  .tools .btn{text-align:left;padding:12px 14px}
+  nav{position:fixed;left:0;right:0;bottom:0;z-index:7;border-radius:0;padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px));background:var(--card);border-top:1px solid var(--line);gap:0;box-shadow:0 -4px 18px rgba(16,24,40,.08)}
+  nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;padding:5px 1px;font-size:10.5px;position:relative;min-width:0}
+  nav button.on{background:var(--soft);box-shadow:none}
+  nav .ic{display:block;font-size:20px;line-height:1.2}
+  nav .lg{display:none}
+  #badge{position:absolute;top:0;right:12%;margin:0;font-size:10.5px;padding:0 6px}
+  main{padding:14px 12px calc(96px + env(safe-area-inset-bottom,0px))}
+  .stats{grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+  .stat{padding:12px 14px}.stat b{font-size:22px}.stat span{font-size:12px}
+  .bar{gap:8px;margin-bottom:12px}
+  .bar>*{min-width:0}
+  .bar .sp{display:none}
+  .bar .btn.pri{order:-1;flex:1 1 100%;padding:13px;font-size:15px}
+  .bar input.in-s,#q{flex:1 1 100%;min-width:0;width:100%}
+  .bar select.in-s{flex:1 1 45%;max-width:none;width:auto}
+  .bar label{font-size:12.5px}
+  .filt select{max-width:none}
+  .filt>*:not(.ft){display:none}
+  .filt.open{display:grid;grid-template-columns:1fr 1fr}.filt.open>*{display:flex}.filt.open>.ft{grid-column:1/-1;display:flex;justify-content:space-between}.filt>.ft::after{float:none}.filt.open>.btn{grid-column:1/-1;justify-content:center}
+  .bar>.fl{flex:1 1 45%}.bar>.fl.fw{flex:1 1 100%}
+  .fl{flex-direction:column;align-items:stretch;gap:3px}.fl select,.fl input.in-s{color:var(--ink);font-weight:400}.fl select,.fl input.in-s{width:100%!important}
+  .fl:has(#sdone){flex-direction:row;align-items:center}.fl #sdone{width:20px!important}
+  .filt>.ft{flex:1 1 100%;padding:11px 14px;background:var(--card);border:1px solid var(--line);border-radius:10px;font-size:14px;cursor:pointer;color:var(--ink)}
+  .filt>.ft::after{content:"▾";float:right;color:var(--mut)}.filt.open>.ft::after{content:"▴"}
+  .stat{display:flex;align-items:baseline;gap:8px;padding:10px 14px}.stat b{font-size:20px;display:inline}.stat span{font-size:12px;line-height:1.25}
+  .grid{grid-template-columns:minmax(0,1fr);gap:12px}
+  .card{padding:15px}.card:hover{transform:none}
+  .panel{background:none;box-shadow:none;overflow:visible}
+  table,tbody{display:block}thead{display:none}
+  tbody tr{display:block;background:var(--card);border-radius:var(--r);box-shadow:0 1px 2px rgba(16,24,40,.07);padding:8px 14px;margin-bottom:10px}
+  tbody tr:hover{background:var(--card)}
+  tbody tr:has(td[colspan]){background:none;box-shadow:none;padding:0;margin:14px 0 6px}
+  td{display:flex;gap:10px;align-items:baseline;padding:3px 0;border:0}
+  td[data-l]::before{content:attr(data-l);flex:0 0 34%;max-width:120px;color:var(--mut);font-size:12px;font-weight:700}
+  td.note{min-width:0;white-space:pre-wrap}
+  td.act{justify-content:flex-end;gap:8px;margin-top:6px;padding-top:10px;border-top:1px solid var(--line)}
+  td.act:empty{display:none}
+  td>*:not(.btn){min-width:0;overflow-wrap:anywhere}
+  .ck{width:24px;height:24px}
+  .btn.sm{padding:8px 14px;font-size:13.5px}
+  dialog{width:calc(100vw - 20px);max-height:92dvh;overflow:auto;overscroll-behavior:contain}
+  dialog form{grid-template-columns:1fr;padding:18px;gap:12px}
+  dialog label input,dialog label select,dialog label textarea,.pkin,.in-s,select.in-s,input,select,textarea{font-size:16px}
+  .btns .btn{padding:12px 18px}
+  .pkl{max-height:36dvh}
+  .tb{top:calc(56px + env(safe-area-inset-top,0px));flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .tb button,.tb select{flex:0 0 auto;min-width:38px;height:38px}
+  .nst{display:none}
+  #ed{padding:18px 16px;min-height:55vh}
+  #toast{bottom:calc(84px + env(safe-area-inset-bottom,0px));max-width:92vw;text-align:center}
+}
 </style>
 </head>
 <body>
 <header>
   <div class="brand"><div class="logo">€</div>Dossiers comptables</div>
   <nav>
-    <button data-t="dos">Dossiers</button>
-    <button data-t="sui">Suivi mensuel</button>
-    <button data-t="rap">Rappels<span id="badge"></span></button>
-    <button data-t="fou">Fournisseurs</button>
-    <button data-t="not">Notes</button>
+    <button data-t="dos"><span class="ic">📁</span><span class="lb">Dossiers</span></button>
+    <button data-t="sui"><span class="ic">📅</span><span class="lb">Suivi<span class="lg"> mensuel</span></span></button>
+    <button data-t="rap"><span class="ic">🔔</span><span class="lb">Rappels</span><span id="badge"></span></button>
+    <button data-t="fou"><span class="ic">🏢</span><span class="lb">Fournisseurs</span></button>
+    <button data-t="not"><span class="ic">📝</span><span class="lb">Notes</span></button>
   </nav>
   <span id="sync" class="sync"></span>
-  <span class="sync" style="font-weight:400;opacity:.7" title="Numéro de version du site">v4</span>
+  <span class="sync" style="font-weight:400;opacity:.7" title="Numéro de version du site">v5</span>
+  <button class="btn" id="mnu" aria-label="Menu">⋯</button>
   <div class="tools">
     <button class="btn" data-x="menu">Envoyer vers Excel</button>
     <button class="btn" id="exp">Exporter la sauvegarde</button>
@@ -158,7 +224,7 @@ const fid = k => String(k).replace(/\|/g, "_");
 const migrer = () => { let ch = false; D.faits = D.faits || {}; D.dossiers.forEach(d => { if (!d.cree) { d.cree = iso(new Date()); ch = true; } }); if (ch) save(); };
 const save = () => { wgen++; return persist().then(pull); };
 
-function setSync(ok) { DBX = ok; const s = $("#sync"); if (s) { s.textContent = ok ? "● Partagé, mise à jour en direct" : "○ Hors ligne, nouvelle tentative…"; s.className = "sync" + (ok ? " on" : ""); } }
+function setSync(ok) { DBX = ok; const s = $("#sync"); if (s) { s.innerHTML = "<i class=dt></i><span class=st>" + (ok ? "Partagé, mise à jour en direct" : "Hors ligne, nouvelle tentative…") + "</span>"; s.title = ok ? "Connecté : les modifications sont partagées en direct" : "Hors ligne"; s.className = "sync" + (ok ? " on" : ""); } }
 async function api(body) {
   if (!API.startsWith("http")) throw "config";
   codeExpire();
@@ -381,11 +447,12 @@ const match = d => {
 };
 const collabs = () => [...new Set(D.dossiers.map(d => d.collab).filter(Boolean))].sort(cmp);
 const selC = (id, cur) => `<select id=${id} class=in-s><option value="">Tous les collaborateurs</option><option value="__none" ${cur == "__none" ? "selected" : ""}>Non attribué</option>${collabs().map(c => `<option ${c == cur ? "selected" : ""}>${esc(c)}</option>`).join("")}</select>`;
+let filOpen = false;
 function filtres() {
   const uniq = k => [...new Set(D.dossiers.map(d => d[k]).filter(Boolean))].sort(cmp);
   const sel = (id, ph, opts) => `<select class=in-s data-f=${id}><option value="">${ph}</option>${opts.map(o => { const [v, t] = ov(o); return `<option value="${esc(v)}" ${String(fil[id] ?? "") == String(v) ? "selected" : ""}>${esc(t)}</option>`; }).join("")}</select>`;
   const n = Object.values(fil).filter(Boolean).length + (qs ? 1 : 0);
-  return `<div class="bar filt"><label>Filtres</label>` +
+  return `<div class="bar filt${filOpen ? " open" : ""}"><label class=ft>Filtres${n ? " (" + n + " actif" + (n > 1 ? "s" : "") + ")" : ""}</label>` +
     sel("collab", "Collaborateur : tous", [["__none", "Non attribué"], ...collabs()]) +
     sel("mois", "Clôture : tous les mois", MOIS.map((m, i) => [i + 1, "Clôture : " + m])) +
     sel("logiciel", "Logiciel : tous", uniq("logiciel")) +
@@ -453,12 +520,12 @@ function vSui() {
     .sort((a, b) => dd(b).localeCompare(dd(a)) || b.id - a.id);
   const nom = id => { const d = D.dossiers.find(x => x.id == id); return d ? label(d) : "(dossier supprimé)"; };
   const A_ = curD == "all";
-  return `<div class=bar><input id=qs class=in-s placeholder="Rechercher : une partie du nom, du n°, du détail…" value="${esc(qsui)}"><label>Dossier</label><select id=sd class=in-s><option value=all ${A_ ? "selected" : ""}>Tous les dossiers</option>${ds.filter(d => okC(d) && (!toks.length || d.id == curD || toks.every(t => hay(d).includes(t)))).map(d => `<option value=${d.id} ${d.id == curD ? "selected" : ""}>${esc(label(d))}</option>`).join("")}</select>
-    <label>Mois</label><select id=sm class=in-s>${ms.map(m => `<option ${m == curM ? "selected" : ""}>${m}</option>`).join("")}</select>
-    <select id=ss class=in-s><option value="">Tous les statuts</option>${STATUTS.map(x => `<option ${x == curS ? "selected" : ""}>${x}</option>`).join("")}</select>
-    ${selC("sc", curC)}<span class=sp></span><button class="btn pri" data-a=addS>+ Ajouter une rubrique</button></div>` +
+  return `<div class=bar><input id=qs class=in-s placeholder="Rechercher : une partie du nom, du n°, du détail…" value="${esc(qsui)}"><label class="fl fw">Dossier<select id=sd class=in-s><option value=all ${A_ ? "selected" : ""}>Tous les dossiers</option>${ds.filter(d => okC(d) && (!toks.length || d.id == curD || toks.every(t => hay(d).includes(t)))).map(d => `<option value=${d.id} ${d.id == curD ? "selected" : ""}>${esc(label(d))}</option>`).join("")}</select></label>
+    <label class=fl>Mois<select id=sm class=in-s>${ms.map(m => `<option ${m == curM ? "selected" : ""}>${m}</option>`).join("")}</select></label>
+    <label class=fl>Statut<select id=ss class=in-s><option value="">Tous les statuts</option>${STATUTS.map(x => `<option ${x == curS ? "selected" : ""}>${x}</option>`).join("")}</select></label>
+    <label class="fl fw">Collaborateur${selC("sc", curC)}</label><span class=sp></span><button class="btn pri" data-a=addS>+ Ajouter une rubrique</button></div>` +
     (L.length ? `<div class=panel><table><thead><tr><th>Date</th>${A_ ? "<th>Dossier</th>" : ""}<th>Statut</th><th>Détails / mises à jour</th><th>Dernière MAJ</th><th></th></tr></thead><tbody>` +
-      L.map(s => `<tr><td style="white-space:nowrap">${s.date ? fr(s.date) : s.mois}</td>${A_ ? `<td><b>${esc(nom(s.did))}</b></td>` : ""}<td><select data-s=${s.id} class="sel s${STATUTS.indexOf(s.statut)}">${STATUTS.map(x => `<option ${x == s.statut ? "selected" : ""}>${x}</option>`).join("")}</select></td><td class=note>${s.rub ? `<b>${esc(s.rub)}</b>${s.note ? " — " : ""}` : ""}${esc(s.note)}</td><td>${esc(s.maj)}</td><td class=act><button class="btn sm" data-a=edS data-id=${s.id}>Modifier</button> <button class="btn sm del" data-a=delS data-id=${s.id}>Supprimer</button></td></tr>`).join("") +
+      L.map(s => `<tr><td data-l="Date" style="white-space:nowrap">${s.date ? fr(s.date) : s.mois}</td>${A_ ? `<td data-l="Dossier"><b>${esc(nom(s.did))}</b></td>` : ""}<td data-l="Statut"><select data-s=${s.id} class="sel s${STATUTS.indexOf(s.statut)}">${STATUTS.map(x => `<option ${x == s.statut ? "selected" : ""}>${x}</option>`).join("")}</select></td><td class=note data-l="Détails">${s.rub ? `<b>${esc(s.rub)}</b>${s.note ? " — " : ""}` : ""}${esc(s.note)}</td><td data-l="Dernière MAJ">${esc(s.maj)}</td><td class=act><button class="btn sm" data-a=edS data-id=${s.id}>Modifier</button> <button class="btn sm del" data-a=delS data-id=${s.id}>Supprimer</button></td></tr>`).join("") +
       `</tbody></table></div>` : `<p class=empty>Aucune mise à jour pour cette sélection. Clique sur « Ajouter une rubrique » pour en créer une.</p>`);
 }
 
@@ -472,14 +539,14 @@ function vRap(it) {
   let last = "", rows = "";
   L.forEach(x => {
     if (rtri == "type" && x.type != last) { last = x.type; rows += `<tr><td colspan=7 style="background:var(--hover);font-weight:700;color:var(--acc)">${x.type} <span class=far>(${L.filter(y => y.type == x.type).length})</span></td></tr>`; }
-    rows += `<tr${x.done ? " class=done" : ""}><td><input type=checkbox class=ck title="Marquer comme fait" ${x.done ? "checked" : ""} ${x.key ? `data-k="${esc(x.key)}"` : `data-r=${x.rid}`}></td><td>${fr(iso(x.dt))}</td><td>${x.done ? "<span class=far>Fait ✓</span>" : delai(x.n)}</td><td>${x.type}</td><td>${esc(x.dos)}</td><td>${esc(x.txt)}</td><td class=act>${x.rid ? `<button class="btn sm del" data-a=delR data-id=${x.rid}>Supprimer</button>` : ""}</td></tr>`;
+    rows += `<tr${x.done ? " class=done" : ""}><td data-l="Fait"><input type=checkbox class=ck title="Marquer comme fait" ${x.done ? "checked" : ""} ${x.key ? `data-k="${esc(x.key)}"` : `data-r=${x.rid}`}></td><td data-l="Date">${fr(iso(x.dt))}</td><td data-l="Délai">${x.done ? "<span class=far>Fait ✓</span>" : delai(x.n)}</td><td data-l="Type">${x.type}</td><td data-l="Dossier">${esc(x.dos)}</td><td data-l="Détail">${esc(x.txt)}</td><td class=act>${x.rid ? `<button class="btn sm del" data-a=delR data-id=${x.rid}>Supprimer</button>` : ""}</td></tr>`;
   });
   const o = (v, t, cur) => `<option value="${v}" ${v == cur ? "selected" : ""}>${t}</option>`;
-  return `<div class=bar><input id=qr class=in-s placeholder="Rechercher : une partie du dossier, du type, du détail…" value="${esc(qrap)}"><label>Afficher les échéances des</label><input type=number id=j min=1 max=365 value=${jours} class=in-s style="width:80px"><label>prochains jours</label>
-    ${selC("rc", rcol)}<label>Type</label><select id=rt class=in-s>${o("", "Tous les types", rtype)}${o("TVA", "TVA (toutes)", rtype)}${o("Clôture", "Clôtures", rtype)}${o("Rappel", "Rappels personnels", rtype)}</select>
-    <label>Trier par</label><select id=rs class=in-s>${o("date", "Date", rtri)}${o("type", "Type de rappel", rtri)}${o("dossier", "Dossier", rtri)}</select>
-    <label style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type=checkbox id=sdone ${showDone ? "checked" : ""}>Afficher les faits</label>
-    <span class=sp></span><button class="btn pri" data-a=addR>+ Ajouter un rappel</button></div>` +
+  return `<div class=bar><input id=qr class=in-s placeholder="Rechercher : une partie du dossier, du type, du détail…" value="${esc(qrap)}"><span class=sp></span><button class="btn pri" data-a=addR>+ Ajouter un rappel</button></div>
+    <div class="bar filt${filOpen ? " open" : ""}"><label class=ft>Filtres et tri</label><label class=fl>Prochains jours<input type=number id=j min=1 max=365 value=${jours} class=in-s style="width:80px"></label>
+    <label class=fl>Collaborateur${selC("rc", rcol)}</label><label class=fl>Type<select id=rt class=in-s>${o("", "Tous les types", rtype)}${o("TVA", "TVA (toutes)", rtype)}${o("Clôture", "Clôtures", rtype)}${o("Rappel", "Rappels personnels", rtype)}</select></label>
+    <label class=fl>Trier par<select id=rs class=in-s>${o("date", "Date", rtri)}${o("type", "Type de rappel", rtri)}${o("dossier", "Dossier", rtri)}</select></label>
+    <label class=fl style="cursor:pointer"><input type=checkbox id=sdone ${showDone ? "checked" : ""}>Afficher les faits</label></div>` +
     (L.length ? `<div class=panel><table><thead><tr><th style="width:50px">Fait</th><th>Date</th><th>Délai</th><th>Type</th><th>Dossier</th><th>Détail</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>` : `<p class=empty>Rien à signaler pour cette sélection dans les ${jours} prochains jours.</p>`) +
     `<p class=hint>Les échéances de TVA et de clôture sont calculées à partir des fiches dossier : annuelle = 3 mois après la clôture, trimestrielle = janvier, avril, juillet, octobre.</p>`;
 }
@@ -530,7 +597,7 @@ function vFou() {
   const mail = m => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(m || "") ? `<a href="mailto:${esc(m)}">${esc(m)}</a>` : esc(m);
   return `<div class=bar><input id=qf class=in-s placeholder="Rechercher : client, fournisseur, n°, mail, téléphone…" value="${esc(qfou)}"><span class=sp></span><button class="btn pri" data-a=addF>+ Ajouter un contact fournisseur</button></div>` +
     (L.length ? `<div class=panel><table><thead><tr><th>Client</th><th>Fournisseur</th><th>N° client chez le fournisseur</th><th>Mail</th><th>Téléphone</th><th></th></tr></thead><tbody>` +
-      L.map(f => `<tr><td><b>${esc(cl(f.did))}</b></td><td>${esc(f.fournisseur)}</td><td>${esc(f.ncli)}</td><td>${mail(f.mail)}</td><td>${esc(f.tel)}</td><td class=act><button class="btn sm" data-a=edF data-id=${f.id}>Modifier</button> <button class="btn sm del" data-a=delF data-id=${f.id}>Supprimer</button></td></tr>`).join("") +
+      L.map(f => `<tr><td data-l="Client"><b>${esc(cl(f.did))}</b></td><td data-l="Fournisseur">${esc(f.fournisseur)}</td><td data-l="N° client">${esc(f.ncli)}</td><td data-l="Mail">${mail(f.mail)}</td><td data-l="Téléphone">${esc(f.tel)}</td><td class=act><button class="btn sm" data-a=edF data-id=${f.id}>Modifier</button> <button class="btn sm del" data-a=delF data-id=${f.id}>Supprimer</button></td></tr>`).join("") +
       `</tbody></table></div>` : `<p class=empty>${D.fournisseurs.length ? "Aucun résultat pour cette recherche." : "Aucun contact fournisseur. Clique sur « Ajouter un contact fournisseur » pour en créer un."}</p>`);
 }
 
@@ -736,6 +803,9 @@ document.addEventListener("change", e => {
 });
 document.addEventListener("input", e => { if (e.target.id == "ed") noteInput(); });
 
+document.addEventListener("click", e => { const l = e.target.closest(".filt>.ft"); if (l) { filOpen = !filOpen; l.parentNode.classList.toggle("open", filOpen); } });
+$("#mnu").onclick = () => document.querySelector("header").classList.toggle("open");
+document.querySelector(".tools").addEventListener("click", () => document.querySelector("header").classList.remove("open"));
 window.addEventListener("beforeunload", e => { if (ready && (saving || diff().length)) { e.preventDefault(); e.returnValue = ""; } });
 migrer();
 if (ech(jours).length && D.dossiers.length) tab = "rap";
