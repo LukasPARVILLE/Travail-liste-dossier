@@ -180,12 +180,54 @@ nav .lb{display:inline}
   #ed{padding:18px 16px;min-height:55vh}
   #toast{bottom:calc(84px + env(safe-area-inset-bottom,0px));max-width:92vw;text-align:center}
 }
+/* ---- v6 : style chaleureux ---- */
+:root{--bg:#FBF7F1;--line:#EDE5D8;--line2:#DCCFBA;--mut:#7A7166;--ink:#26221C;--ink2:#4A4339;--acc:#4F46E5;--acc2:#4338CA;--soft:#EEEDFE;--chip:#F3EDE2;--chipink:#5B5246;--hover:#FFFBF5;--r:16px}
+body{font-family:"Inter","Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;font-size:14px}
+.logo{background:var(--acc);border-radius:10px}
+.btn{border-radius:12px}.btn:hover{box-shadow:0 3px 10px rgba(60,40,10,.08)}
+.hero{background:#FFF1DE;border-radius:20px;padding:20px 24px;display:flex;align-items:center;gap:20px;margin-bottom:14px}
+.hero h1{margin:0 0 4px;font-size:24px;font-weight:600;letter-spacing:-.01em}
+.hero p{margin:0;color:#6B5636;font-size:15px}.hero .sub{margin-top:6px;font-size:13.5px;color:#7A6340}
+.hero .nm{background:none;border:0;padding:0;color:#8A6A3C;font-size:12px;cursor:pointer;text-decoration:underline;margin-top:8px}
+.ring{position:relative;width:84px;height:84px;flex:none}.ring b{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:19px;font-weight:600;line-height:1.1}.ring small{font-size:11px;font-weight:400;color:#6B5636}
+.start{background:var(--soft);border-radius:20px;padding:16px 20px;margin-bottom:14px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.start .k{font-size:12px;font-weight:600;color:var(--acc2);margin-bottom:4px}.start h3{margin:0;font-size:17px;font-weight:600;color:#26215C}.start .d{font-size:13px;color:var(--acc2)}
+.start .btn{border-color:transparent}.start .btn.w{background:#fff;color:var(--acc2)}
+.mcs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:14px}
+.mcs>div{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 18px;cursor:pointer;transition:.18s}.mcs>div:hover{border-color:var(--line2);transform:translateY(-1px)}
+.mcs span{color:var(--mut);font-size:13px}.mcs b{display:block;font-size:30px;font-weight:600;line-height:1.2}
+.cols2{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:14px}
+.box{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px 20px}.box h3{margin:0 0 6px;font-size:15px;font-weight:600}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}.row:last-child{border:0}.row small{display:block;color:var(--mut);font-size:12px}
+.pill{border-radius:20px;padding:3px 11px;font-size:12px;font-weight:500;white-space:nowrap}
+.sbar{display:flex;height:11px;border-radius:6px;overflow:hidden;gap:2px;margin:10px 0}.sbar i{display:block}
+.leg{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--mut)}.leg i{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:5px}
+@media (min-width:801px){
+  header{position:fixed;left:0;top:0;bottom:0;width:216px;flex-direction:column;align-items:stretch;flex-wrap:nowrap;gap:6px;padding:20px 12px;background:#FFFDFA;backdrop-filter:none;-webkit-backdrop-filter:none;border-bottom:0;border-right:1px solid var(--line);overflow-y:auto}
+  .brand{padding:0 8px 14px;font-size:15px}
+  nav{flex-direction:column;background:none;padding:0;gap:2px}
+  nav button{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:12px;text-align:left;font-weight:500;color:var(--ink2)}
+  nav button:hover{background:var(--chip)}nav button.on{background:var(--soft);color:var(--acc2);box-shadow:none}
+  nav .ic{display:inline-block;width:22px;text-align:center}#badge{margin-left:auto}
+  #sync{margin-top:auto;padding:8px 10px 0}
+  .tools{margin:6px 0 0;flex-direction:column}.tools .btn{text-align:left;font-size:13px;font-weight:500}
+  main{margin:0 0 0 216px;max-width:1240px;padding:30px 40px 60px}
+  .tb{top:12px}
+}
+@media (max-width:800px){
+  nav button{font-size:10px}
+  .hero .nm{margin-left:0!important;display:block}
+  .hero{padding:16px;gap:12px;flex-wrap:wrap}.hero h1{font-size:21px}.start{padding:14px 16px}
+  .mcs{gap:8px}.mcs>div{padding:12px}.mcs b{font-size:24px}.cols2{grid-template-columns:minmax(0,1fr)}
+}
 </style>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
 </head>
 <body>
 <header>
   <div class="brand"><div class="logo">€</div>Dossiers comptables</div>
   <nav>
+    <button data-t="acc"><span class="ic">🏠</span><span class="lb">Accueil</span></button>
     <button data-t="dos"><span class="ic">📁</span><span class="lb">Dossiers</span></button>
     <button data-t="sui"><span class="ic">📅</span><span class="lb">Suivi<span class="lg"> mensuel</span></span></button>
     <button data-t="rap"><span class="ic">🔔</span><span class="lb">Rappels</span><span id="badge"></span></button>
@@ -193,7 +235,7 @@ nav .lb{display:inline}
     <button data-t="not"><span class="ic">📝</span><span class="lb">Notes</span></button>
   </nav>
   <span id="sync" class="sync"></span>
-  <span class="sync" style="font-weight:400;opacity:.7" title="Numéro de version du site">v5</span>
+  <span class="sync" style="font-weight:400;opacity:.7" title="Numéro de version du site">v6</span>
   <button class="btn" id="mnu" aria-label="Menu">⋯</button>
   <div class="tools">
     <button class="btn" data-x="menu">Envoyer vers Excel</button>
@@ -286,7 +328,7 @@ function applyData(j) {
   D.faits = {}; synced.faits = {};
   j.data.faits.forEach(k => { D.faits[k] = 1; synced.faits[fid(k)] = 1; });
   const first = !ready; ready = true;
-  if (first) { migrer(); if (ech(jours).length && D.dossiers.length) tab = "rap"; render(); }
+  if (first) { migrer(); render(); }
   else if (sig() !== before) refresh();
 }
 function refresh() {
@@ -316,7 +358,7 @@ const byNum = (a, b) => cmp(a.numero, b.numero) || cmp(a.nom, b.nom);
 const mc = d => d.cloture ? +d.cloture.slice(5, 7) : 99;
 function toast(m) { const t = $("#toast"); t.textContent = m; t.classList.add("on"); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove("on"), 3200); }
 
-let tab = "dos", sortK = "mois", qs = "", curD = "all", curS = "", jours = 14, fil = {}, rtri = "date", rtype = "", showDone = false, qsui = "", qrap = "", curC = "", rcol = "";
+let tab = "acc", sortK = "mois", qs = "", curD = "all", curS = "", jours = 14, fil = {}, rtri = "date", rtype = "", showDone = false, qsui = "", qrap = "", curC = "", rcol = "";
 let curM = iso(new Date()).slice(0, 7);
 
 /* ---------- Échéances ---------- */
@@ -558,7 +600,7 @@ function render() {
   document.title = (urg ? `(${urg}) ` : "") + "Suivi des dossiers comptables";
   $("#badge").textContent = urg || "";
   document.querySelectorAll("nav button").forEach(b => b.classList.toggle("on", b.dataset.t == tab));
-  $("#main").innerHTML = (readOnly ? '<p class=hint style="margin:0 0 14px;color:var(--warn);font-weight:600">Lecture seule : tu peux consulter les dossiers mais pas les modifier.</p>' : "") + { dos: vDos, sui: vSui, rap: () => vRap(it), not: vNot, fou: vFou }[tab]();
+  $("#main").innerHTML = (readOnly ? '<p class=hint style="margin:0 0 14px;color:var(--warn);font-weight:600">Lecture seule : tu peux consulter les dossiers mais pas les modifier.</p>' : "") + { dos: vDos, sui: vSui, rap: () => vRap(it), not: vNot, fou: vFou, acc: vAcc }[tab]();
 }
 
 /* ---------- Actions ---------- */
@@ -601,7 +643,52 @@ function vFou() {
       `</tbody></table></div>` : `<p class=empty>${D.fournisseurs.length ? "Aucun résultat pour cette recherche." : "Aucun contact fournisseur. Clique sur « Ajouter un contact fournisseur » pour en créer un."}</p>`);
 }
 
+
+/* ---------- Accueil ---------- */
+let prenom = localStorage.getItem("compta_prenom"), askedName = false;
+function salut() {
+  const d = new Date(), m = d.getHours() * 60 + d.getMinutes();
+  return m >= 480 && m < 750 ? ["Bonjour", "☀️"] : m >= 750 && m < 840 ? ["Bon appétit", "🍽️"] : m >= 840 && m < 1050 ? ["Bon après-midi", "🌤️"] : ["Bonne soirée", "🌙"];
+}
+function vAcc() {
+  const all = ech(45, true), open = all.filter(x => !x.done), late = open.filter(x => x.n < 0), today = all.filter(x => x.n == 0), todayOpen = today.filter(x => !x.done);
+  const week = open.filter(x => x.n >= 1 && x.n <= 7), first = open[0], nextUp = open.find(x => x.n > 0);
+  const [g, ic] = salut(), now = new Date(), dow = now.getDay(), h = now.getHours();
+  const pl = (n, s, p) => n + " " + (n > 1 ? p : s), J = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
+  const quand = x => x.n == 1 ? "demain" : x.n <= 6 ? J[x.dt.getDay()] : "le " + fr(iso(x.dt));
+  let msg;
+  if (!DBX) msg = "Tu es hors ligne. Tes modifications seront envoyées dès le retour du réseau.";
+  else if (late.length) msg = `Il y a ${pl(late.length, "point", "points")} à rattraper, le plus ancien date de ${pl(-late[0].n, "jour", "jours")}.`;
+  else if (todayOpen.length) msg = `${todayOpen.length > 1 ? todayOpen.length + " points sont prévus" : "1 point est prévu"} aujourd'hui.`;
+  else if (today.length) msg = "Tout est fait pour aujourd'hui.";
+  else if (nextUp) msg = `Rien de prévu aujourd'hui. La prochaine échéance est ${quand(nextUp)} : ${nextUp.txt}, ${nextUp.dos}.`;
+  else msg = "Tout est à jour, rien d'urgent.";
+  let sub = "";
+  const tva = open.filter(x => x.type.startsWith("TVA") && x.n >= 0 && x.n <= 3), dem = new Date(now); dem.setDate(dem.getDate() + 1);
+  const ym = iso(now).slice(0, 7), ouv = D.suivi.filter(s => s.mois == ym && s.statut != "Fait").length, sem = open.filter(x => x.n >= 0 && x.n <= 6).length;
+  if (dem.getMonth() != now.getMonth() && ouv) sub = `Dernier jour du mois : ${ouv > 1 ? ouv + " rubriques du suivi ne sont pas terminées" : "1 rubrique du suivi n'est pas terminée"}.`;
+  else if (tva.length) { const mn = Math.min(...tva.map(x => x.n)); sub = `Les déclarations de TVA sont à rendre ${mn ? "dans " + mn + " j" : "aujourd'hui"} : ${pl(tva.length, "dossier concerné", "dossiers concernés")}.`; }
+  else if (dow == 1 && h < 12 && sem) { const dm = open.filter(x => x.n == 1).length; sub = `Nouvelle semaine : ${pl(sem, "échéance", "échéances")} à venir${dm ? ", dont " + dm + " demain" : ""}.`; }
+  else if (dow == 5 && h >= 12 && open.filter(x => x.n <= 2).length) sub = `Fin de semaine : il reste ${pl(open.filter(x => x.n <= 2).length, "point", "points")} avant le week-end.`;
+  const dl = now.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" }), done = today.length - todayOpen.length;
+  const ring = today.length ? `<div class=ring><svg width=84 height=84 viewBox="0 0 84 84"><circle cx=42 cy=42 r=34 fill=none stroke="#fff" stroke-width=9 /><circle cx=42 cy=42 r=34 fill=none stroke="#2E9E6B" stroke-width=9 stroke-linecap=round stroke-dasharray="${(213.6 * done / today.length).toFixed(1)} 214" transform="rotate(-90 42 42)"/></svg><b>${done}/${today.length}<small>faites</small></b></div>` : "";
+  const pillOf = x => x.n < 0 ? `<span class=pill style="background:var(--badbg,#FDECEA);color:var(--bad)">En retard de ${-x.n} j</span>` : x.n == 0 ? `<span class=pill style="background:var(--warnbg);color:var(--warn)">Aujourd'hui</span>` : x.n == 1 ? `<span class=pill style="background:var(--chip);color:var(--chipink)">Demain</span>` : `<span class=pill style="background:var(--okbg);color:var(--ok)">Dans ${x.n} j</span>`;
+  const act = first ? `<div class=start><div style="flex:1;min-width:180px"><div class=k>${first.n <= 0 ? "Pour bien démarrer" : "Prochain point"}</div><h3>${esc(first.txt)}</h3><div class=d>${esc(first.dos)}, ${first.n < 0 ? "en retard de " + pl(-first.n, "jour", "jours") : first.n == 0 ? "à faire aujourd'hui" : "prévu " + quand(first)}</div></div><div style="display:flex;gap:8px;flex-wrap:wrap">${first.did ? `<button class="btn pri" data-a=openD data-id=${first.did}>Ouvrir le dossier</button>` : ""}<button class="btn w" data-a=doneA ${first.key ? `data-k="${esc(first.key)}"` : `data-r=${first.rid}`}>✓ C'est fait</button></div></div>` : "";
+  const list = open.filter(x => x !== first && x.n <= 7).slice(0, 5);
+  const rows = list.length ? list.map(x => `<div class=row><div><div>${esc(x.txt)}</div><small>${esc(x.dos)}</small></div>${pillOf(x)}</div>`).join("") : `<p class=hint style="margin:8px 0 0">Rien d'autre à traiter cette semaine.</p>`;
+  const sm = D.suivi.filter(s => s.mois == ym), nb = k => sm.filter(s => s.statut == k).length, tot = sm.length;
+  const mois = now.toLocaleDateString("fr-FR", { month: "long" });
+  const suivi = tot ? `<p class=hint style="margin:0">${nb("Fait")} sur ${tot} ${tot > 1 ? "rubriques terminées" : "rubrique terminée"}</p><div class=sbar><i style="width:${100 * nb("Fait") / tot}%;background:var(--ok)"></i><i style="width:${100 * nb("En cours") / tot}%;background:var(--acc)"></i><i style="width:${100 * nb("À faire") / tot}%;background:var(--line2)"></i></div><div class=leg><span><i style="background:var(--ok)"></i>Fait ${nb("Fait")}</span><span><i style="background:var(--acc)"></i>En cours ${nb("En cours")}</span><span><i style="background:var(--line2)"></i>À faire ${nb("À faire")}</span></div>` : `<p class=hint style="margin:0">Aucune rubrique pour ce mois-ci.</p>`;
+  if (prenom === null && !askedName) { askedName = true; setTimeout(async () => { await A.prenom(); render(); }, 400); }
+  return `<div class=hero><div style="flex:1;min-width:200px"><h1>${g}${prenom ? " " + esc(prenom) : ""} ${ic}</h1><p>${msg}</p>${sub ? `<div class=sub>${sub}</div>` : ""}<div style="font-size:12.5px;color:#8A6A3C;margin-top:8px">${dl[0].toUpperCase() + dl.slice(1)}<button class=nm data-a=prenom style="margin-left:10px">${prenom ? "Changer de prénom" : "Ajouter mon prénom"}</button></div></div>${ring}</div>${act}
+  <div class=mcs><div data-t=rap><span>À rattraper</span><b>${late.length}</b></div><div data-t=rap><span>Pour aujourd'hui</span><b>${todayOpen.length}</b></div><div data-t=rap><span>À venir cette semaine</span><b>${week.length}</b></div></div>
+  <div class=cols2><div class=box><h3>À traiter</h3>${rows}</div><div class=box data-t=sui style="cursor:pointer"><h3>Suivi de ${mois}</h3>${suivi}</div></div>`;
+}
+
 const A = {
+  async prenom() { const p = prompt("Comment dois-je t'appeler ?", prenom || ""); if (p !== null) { prenom = p.trim(); localStorage.setItem("compta_prenom", prenom); } },
+  openD(e) { const d = D.dossiers.find(x => x.id == e.dataset.id); if (d) { tab = "dos"; qs = d.nom || d.numero || ""; } },
+  doneA(e) { if (e.dataset.k) D.faits[e.dataset.k] = 1; else { const r = D.rappels.find(x => x.id == e.dataset.r); if (r) r.fait = 1; } },
   async addF() { const v = await ask("Nouveau contact fournisseur", FF(), {}, chkF); if (v) D.fournisseurs.push({ id: nid(), did: +v.did, fournisseur: v.fournisseur, ncli: v.ncli, mail: v.mail, tel: v.tel, maj: now() }); },
   async edF(e) { const id = e.dataset.id, v = await ask("Modifier le contact fournisseur", FF(), D.fournisseurs.find(x => x.id == id), chkF), f = D.fournisseurs.find(x => x.id == id); if (v && f) Object.assign(f, { did: +v.did, fournisseur: v.fournisseur, ncli: v.ncli, mail: v.mail, tel: v.tel, maj: now() }); },
   async delF(e) { if (await oui("Supprimer ce contact fournisseur ?", "Supprimer")) D.fournisseurs = D.fournisseurs.filter(x => x.id != e.dataset.id); },
