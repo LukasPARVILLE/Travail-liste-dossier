@@ -235,7 +235,7 @@ body{font-family:"Inter","Segoe UI Variable Text","Segoe UI",system-ui,sans-seri
     <button data-t="not"><span class="ic">📝</span><span class="lb">Notes</span></button>
   </nav>
   <span id="sync" class="sync"></span>
-  <span class="sync" style="font-weight:400;opacity:.7" title="Numéro de version du site">v6</span>
+  <span class="sync" style="font-weight:400;opacity:.7" title="Numéro de version du site">v7</span>
   <button class="btn" id="mnu" aria-label="Menu">⋯</button>
   <div class="tools">
     <button class="btn" data-x="menu">Envoyer vers Excel</button>
@@ -351,6 +351,14 @@ const nid = () => Date.now() * 1000 + Math.floor(Math.random() * 1000); // ident
 const iso = d => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
 const fr = s => s ? s.split("-").reverse().join("/") : "";
 const now = () => new Date().toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" });
+const FER = {};
+function feries(y) { // jours fériés français : fixes + lundi de Pâques, Ascension, lundi de Pentecôte
+  if (FER[y]) return FER[y];
+  const a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3), h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451), mo = Math.floor((h + l - 7 * m + 114) / 31), da = (h + l - 7 * m + 114) % 31 + 1;
+  const P = new Date(y, mo - 1, da), pl = n => { const x = new Date(P); x.setDate(x.getDate() + n); return iso(x); };
+  return FER[y] = new Set([`${y}-01-01`, `${y}-05-01`, `${y}-05-08`, `${y}-07-14`, `${y}-08-15`, `${y}-11-01`, `${y}-11-11`, `${y}-12-25`, pl(1), pl(39), pl(50)]);
+}
+const ouvre = dt => { const x = new Date(dt); while (x.getDay() == 0 || x.getDay() == 6 || feries(x.getFullYear()).has(iso(x))) x.setDate(x.getDate() + 1); return x; }; // prochain jour travaillé
 const sd = (y, m, d) => new Date(y, m, Math.min(+d, new Date(y, m + 1, 0).getDate()));
 const label = d => [d.numero, d.nom].filter(Boolean).join(" - ");
 const cmp = (a, b) => String(a ?? "").localeCompare(String(b ?? ""), "fr", { numeric: true });
@@ -379,7 +387,7 @@ function ech(j, withDone = false) {
       const m = new Date(t.getFullYear(), t.getMonth() + k, 1), mo = m.getMonth();
       const ok = d.periodicite == "Mensuelle" || (d.periodicite == "Trimestrielle" && [0, 3, 6, 9].includes(mo)) ||
         (d.periodicite == "Annuelle" && c && mo == (c.getMonth() + 3) % 12);
-      if (ok) { const dt = sd(m.getFullYear(), mo, d.echeance); if (dt >= lbd && dt <= fin) add(dt, "TVA " + d.periodicite.toLowerCase(), label(d), "Déclaration de TVA", null, `${d.id}|tva|${iso(dt)}`, d.id); }
+      if (ok) { const d0 = sd(m.getFullYear(), mo, d.echeance), dt = ouvre(d0); if (dt >= lbd && dt <= fin) add(dt, "TVA " + d.periodicite.toLowerCase(), label(d), "Déclaration de TVA", null, `${d.id}|tva|${iso(d0)}`, d.id); }
     }
     if (c) {
       const f = new Date(t); f.setDate(f.getDate() + Math.max(j, 30));
